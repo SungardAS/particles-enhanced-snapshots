@@ -1,0 +1,21 @@
+{
+  "name": "particles-enhanced-snapshots",
+  "version": "0.1.1",
+  "description": "[Condensation](https://github.com/SungardAS/condensation) particles that create a CloudFormation project for [Enhanced Snapshots](https://github.com/SungardAS/snapdirector)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kevin McGrath",
+  "license": "Apache 2.0",
+  "keywords": [
+    "condensation-particles"
+  ],
+  "dependencies": {
+    "condensation": "^0.4.8",
+    "gulp": "^3.9.0",
+    "config": "^1.16.0",
+    "git-rev-sync": "^1.4.0",
+    "particles-common-core": "^0.3.2"
+  }
+}
