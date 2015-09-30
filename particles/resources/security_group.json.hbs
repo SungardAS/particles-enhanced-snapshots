@@ -1,0 +1,15 @@
+{{#resource}}
+  "Type": "AWS::EC2::SecurityGroup",
+  "Properties": {
+    "GroupDescription": "Enhanced Snapshot",
+    "VpcId": {"Ref": "VpcId"},
+    "Tags": [
+      {
+        "Key": "Name",
+        "Value": {
+          "Ref": "{{nameTagLogicalId}}"
+        }
+      }
+    ]
+  }
+{{/resource}}

@@ -1,216 +1,34 @@
 {{#layout}}
 
-  {{
-    parameter "module:particles-common-core" "base"
-    logicalId="KeyName"
-    type="AWS::EC2::KeyPair::KeyName"
-    description="[required] An Amazon EC2 key pair name"
-  }}
+  {{parameter "key_name" logicalId="KeyName"}}
+
+  {{parameter "image_id" "base" logicalId="ImageId"}}
+
+  {{parameter "instance_type" logicalId="InstanceType"}}
+
+  {{parameter "vpc_id" logicalId="VpcId"}}
+
+  {{parameter "name_tag" logicalId="NameTag"}}
+
+  {{resource 'user' logicalId="User"}}
+
+  {{resource 'access_key' logicalId="AccessKey"}}
 
   {{
-    parameter "module:particles-common-core" "base"
-    logicalId="ImageId"
-    type="AWS::EC2::Image::Id"
-    description="[required] An Enhanced Snapshot EC2 image ID"
+    resource 'security_group'
+    logicalId="SecurityGroup"
+    nameTagLogicalId="NameTag"
   }}
+
 
   {{
-    parameter "module:particles-common-core" "base"
-    logicalId="InstanceType"
-    type="String"
-    description="[required] An AWS EC2 instance type"
-    default="t2.medium"
+    resource 'instance' logicalId="Instance"
+    nameTagLogicalId="NameTag"
+    imageIdLogicalId="ImageId"
+    keyNameLogicalId="KeyName"
+    instanceTypeLogicalId="InstanceType"
+    accessKeyLogicalId="AccessKey"
+    securityGroupLogicalId="SecurityGroup"
   }}
-
-  {{
-    parameter "module:particles-common-core" "base"
-    logicalId="VpcId"
-    type="AWS::EC2::VPC::Id"
-    description="[required] VPC to create the instance in"
-  }}
-
-  {{
-    parameter "module:particles-common-core" "base"
-    logicalId="NameTag"
-    type="String"
-    description="[required] Will set the name tag on created resources"
-    default="Enhanced Snapshots"
-  }}
-
-  {{#resource logicalId='User'}}
-    "Type": "AWS::IAM::User",
-    "Properties": {
-      "Policies": [{
-        "PolicyName": "EnhancedSnapshots",
-        "PolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [{
-            "Action": [
-              "iam:GetUser",
-              "iam:ListRoles",
-              "ec2:AttachVolume",
-              "ec2:CreateSnapshot",
-              "ec2:CreateTags",
-              "ec2:CreateVolume",
-              "ec2:DeleteSnapshot",
-              "ec2:DeleteTags",
-              "ec2:DeleteVolume",
-              "ec2:DescribeAvailabilityZones",
-              "ec2:DescribeInstanceAttribute",
-              "ec2:DescribeInstanceStatus",
-              "ec2:DescribeInstances",
-              "ec2:TerminateInstances",
-              "ec2:DescribeRegions",
-              "ec2:DescribeReservedInstances",
-              "ec2:DescribeReservedInstancesListings",
-              "ec2:DescribeSnapshotAttribute",
-              "ec2:DescribeSnapshots",
-              "ec2:DescribeTags",
-              "ec2:DescribeVolumeAttribute",
-              "ec2:DescribeVolumeStatus",
-              "ec2:DescribeVolumes",
-              "ec2:DetachVolume",
-              "ec2:EnableVolumeIO",
-              "ec2:ModifyInstanceAttribute",
-              "ec2:ModifySnapshotAttribute",
-              "ec2:ModifyVolumeAttribute",
-              "ec2:ResetSnapshotAttribute",
-              "sqs:*",
-              "s3:*",
-              "dynamodb:*"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-          }]
-        }
-      },{
-        "PolicyName": "CloudFormation",
-        "PolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [{
-            "Action": [
-              "cloudformation:DescribeStackResource"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-          }]
-        }
-      }]
-    }
-  {{/resource}}
-
-  {{#resource logicalId="AccessKey"}}
-    "Type": "AWS::IAM::AccessKey",
-     "Properties": {
-        "Serial": 1,
-        "Status": "Active",
-        "UserName": {"Ref": "User"}
-     }
-  {{/resource}}
-
-  {{#resource logicalId="SecurityGroup"}}
-    "Type": "AWS::EC2::SecurityGroup",
-    "Properties": {
-      "GroupDescription": "Enhanced Snapshot",
-      "VpcId": {"Ref": "VpcId"},
-      "Tags": [
-        {
-          "Key": "Name",
-          "Value": {
-            "Ref": "NameTag"
-          }
-        }
-      ]
-    }
-  {{/resource}}
-
-
-  {{#resource logicalId="Instance"}}
-    "Type": "AWS::EC2::Instance",
-    "Metadata": {
-      "AWS::CloudFormation::Authentication": {
-        "S3AccessCreds": {
-          "type": "S3",
-          "accessKeyId": { "Ref" : "AccessKey" },
-          "secretKey": {"Fn::GetAtt": ["AccessKey", "SecretAccessKey"]},
-          "buckets": [ "{{s3.bucket}}" ]
-        }
-      },
-      "AWS::CloudFormation::Init" : {
-        "configSets": {
-          "default": ["setKeys","runApp"]
-        },
-        "setKeys": {
-          "commands": {
-            "001": {
-              "command": {"Fn::Join": ["",["/usr/bin/aws configure set aws_access_key_id ", {"Ref": "AccessKey" }]]}
-            },
-            "002": {
-              "command": {"Fn::Join": ["",["/usr/bin/aws configure set aws_secret_access_key ", {"Fn::GetAtt": ["AccessKey", "SecretAccessKey"]}]]}
-            },
-            "003": {
-              "command": {"Fn::Join": ["",["/usr/bin/aws configure set default.region ", {"Ref": "AWS::Region"}]]}
-            }
-          },
-          "files": {
-            "/etc/init.d/tomcat8": {
-              "source": "{{assetS3Url 'etc_initd_tomcat8.tmpl'}}",
-              "context" : {
-                "aws_access_key_id": {"Ref": "AccessKey" },
-                "aws_secret_access_key": {"Fn::GetAtt": ["AccessKey", "SecretAccessKey"]}
-              },
-              "mode": "000755"
-            }
-          }
-        },
-        "runApp": {
-          "commands": {
-            "001": {
-              "command": "service tomcat8 restart"
-            }
-          }
-        }
-      }
-    },
-    "Properties": {
-      "ImageId": {"Ref": "ImageId"},
-      "KeyName": {"Ref": "KeyName"},
-      "SecurityGroupIds": [ { "Fn::GetAtt" : ["SecurityGroup", "GroupId"] } ],
-      "InstanceType": {"Ref": "InstanceType" },
-      "UserData": { "Fn::Base64": { "Fn::Join": ["", [
-        "#!/bin/bash -ex\n",
-
-        "# Helper function\n",
-        "function error_exit\n",
-        "{\n",
-        "  /opt/aws/bin/cfn-signal -e 1 -r \"$1\" ",
-        "  --stack ", { "Ref": "AWS::StackName" },
-        "  --resource AppInstanceGroup " ,
-        "  --region ", { "Ref" : "AWS::Region" }, "\n",
-        "  exit 1\n",
-        "}\n",
-
-        "# Process CloudFormation init definitions\n",
-        "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackName" }, " -r Instance ", " -c default ",
-        "    --region ", { "Ref": "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
-
-        "# All is well so signal success\n",
-        "/opt/aws/bin/cfn-signal -e 0 -r \"Stack setup complete\" ",
-        "  --stack ", {"Ref": "AWS::StackName"},
-        "  --resource Instance " ,
-        "  --region ", {"Ref": "AWS::Region"}, "\n",
-
-        "#EOF"
-      ]]}},
-      "Tags": [
-        {
-          "Key": "Name",
-          "Value": {
-            "Ref": "NameTag"
-          }
-        }
-      ]
-    }
-  {{/resource}}
 
 {{/layout}}

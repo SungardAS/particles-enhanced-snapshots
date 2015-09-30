@@ -1,6 +1,6 @@
 {
   "name": "particles-enhanced-snapshots",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "[Condensation](https://github.com/SungardAS/condensation) particles that create a CloudFormation project for [Enhanced Snapshots](https://github.com/SungardAS/snapdirector)",
   "main": "index.js",
   "scripts": {

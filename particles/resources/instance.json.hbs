@@ -1,0 +1,87 @@
+{{#resource}}
+  "Type": "AWS::EC2::Instance",
+  "Metadata": {
+    "AWS::CloudFormation::Authentication": {
+      "S3AccessCreds": {
+        "type": "S3",
+        "accessKeyId": { "Ref": "{{accessKeyLogicalId}}" },
+        "secretKey": {"Fn::GetAtt": ["{{accessKeyLogicalId}}", "SecretAccessKey"]},
+        "buckets": [ "{{s3.bucket}}" ]
+      }
+    },
+    "AWS::CloudFormation::Init" : {
+      "configSets": {
+        "default": ["setKeys","runApp"]
+      },
+      "setKeys": {
+        "commands": {
+          "001": {
+            "command": {"Fn::Join": ["",["/usr/bin/aws configure set aws_access_key_id ", {"Ref": "{{accessKeyLogicalId}}" }]]}
+          },
+          "002": {
+            "command": {"Fn::Join": ["",["/usr/bin/aws configure set aws_secret_access_key ", {"Fn::GetAtt": ["{{accessKeyLogicalId}}", "SecretAccessKey"]}]]}
+          },
+          "003": {
+            "command": {"Fn::Join": ["",["/usr/bin/aws configure set default.region ", {"Ref": "AWS::Region"}]]}
+          }
+        },
+        "files": {
+          "/etc/init.d/tomcat8": {
+            "source": "{{assetS3Url 'etc_initd_tomcat8.tmpl'}}",
+            "context" : {
+              "aws_access_key_id": {"Ref": "{{accessKeyLogicalId}}" },
+              "aws_secret_access_key": {"Fn::GetAtt": ["{{accessKeyLogicalId}}", "SecretAccessKey"]}
+            },
+            "mode": "000755"
+          }
+        }
+      },
+      "runApp": {
+        "commands": {
+          "001": {
+            "command": "service tomcat8 restart"
+          }
+        }
+      }
+    }
+  },
+  "Properties": {
+    "ImageId": {"Ref": "{{imageIdLogicalId}}" },
+    "KeyName": {"Ref": "{{keyNameLogicalId}}" },
+    "SecurityGroupIds": [ { "Fn::GetAtt" : ["{{securityGroupLogicalId}}", "GroupId"] } ],
+    "InstanceType": {"Ref": "{{instanceTypeLogicalId}}" },
+    "UserData": { "Fn::Base64": { "Fn::Join": ["", [
+      "#!/bin/bash -ex\n",
+
+      "# Helper function\n",
+      "function error_exit\n",
+      "{\n",
+      "  /opt/aws/bin/cfn-signal -e 1 -r \"$1\" ",
+      "  --stack ", { "Ref": "AWS::StackName" },
+      "  --resource AppInstanceGroup " ,
+      "  --region ", { "Ref" : "AWS::Region" }, "\n",
+      "  exit 1\n",
+      "}\n",
+
+      "# Process CloudFormation init definitions\n",
+      "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackName" }, " -r Instance ", " -c default ",
+      "    --region ", { "Ref": "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+
+      "# All is well so signal success\n",
+      "/opt/aws/bin/cfn-signal -e 0 -r \"Stack setup complete\" ",
+      "  --stack ", {"Ref": "AWS::StackName"},
+      "  --resource Instance " ,
+      "  --region ", {"Ref": "AWS::Region"}, "\n",
+
+      "#EOF"
+    ]]}},
+    "Tags": [
+      {
+        "Key": "Name",
+        "Value": {
+          "Ref": "{{nameTagLogicalId}}"
+        }
+      }
+    ]
+  }
+{{/resource}}

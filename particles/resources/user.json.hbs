@@ -1,0 +1,62 @@
+{{#resource}}
+  "Type": "AWS::IAM::User",
+  "Properties": {
+    "Policies": [{
+      "PolicyName": "EnhancedSnapshots",
+      "PolicyDocument": {
+        "Version": "2012-10-17",
+        "Statement": [{
+          "Action": [
+            "iam:GetUser",
+            "iam:ListRoles",
+            "ec2:AttachVolume",
+            "ec2:CreateSnapshot",
+            "ec2:CreateTags",
+            "ec2:CreateVolume",
+            "ec2:DeleteSnapshot",
+            "ec2:DeleteTags",
+            "ec2:DeleteVolume",
+            "ec2:DescribeAvailabilityZones",
+            "ec2:DescribeInstanceAttribute",
+            "ec2:DescribeInstanceStatus",
+            "ec2:DescribeInstances",
+            "ec2:TerminateInstances",
+            "ec2:DescribeRegions",
+            "ec2:DescribeReservedInstances",
+            "ec2:DescribeReservedInstancesListings",
+            "ec2:DescribeSnapshotAttribute",
+            "ec2:DescribeSnapshots",
+            "ec2:DescribeTags",
+            "ec2:DescribeVolumeAttribute",
+            "ec2:DescribeVolumeStatus",
+            "ec2:DescribeVolumes",
+            "ec2:DetachVolume",
+            "ec2:EnableVolumeIO",
+            "ec2:ModifyInstanceAttribute",
+            "ec2:ModifySnapshotAttribute",
+            "ec2:ModifyVolumeAttribute",
+            "ec2:ResetSnapshotAttribute",
+            "sqs:*",
+            "s3:*",
+            "dynamodb:*"
+          ],
+          "Effect": "Allow",
+          "Resource": "*"
+        }]
+      }
+    },{
+      "PolicyName": "CloudFormation",
+      "PolicyDocument": {
+        "Version": "2012-10-17",
+        "Statement": [{
+          "Action": [
+            "cloudformation:DescribeStackResource"
+          ],
+          "Effect": "Allow",
+          "Resource": "*"
+        }]
+      }
+    }]
+  }
+{{/resource}}
+
