@@ -6,7 +6,7 @@
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/SungardAS/condensation?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Dependency
-Status](https://david-dm.org/SungardAS/condensation.svg?branch=master)](https://david-dm.org/SungardAS/particles-enhanced-snapshots?branch=master)
+Status](https://david-dm.org/SungardAS/particles-enhanced-snapshots.svg?branch=master)](https://david-dm.org/SungardAS/particles-enhanced-snapshots?branch=master)
 
 
 ## Summary
@@ -55,7 +55,7 @@ Must have node.js 0.12 or later.
 ## Packaged Project
 
 Using condensation the CloudFormation Template and Enhanced Snapshots assets
-have been deployed to every S3 region lambda is available.
+have been deployed to every AWS region.
 
-* us-east-1 [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=enhanced-snapshots&templateURL=http://particles-enhanced-snapshots.us-east-1.s3.amazonaws.com/master/particles/cftemplates/lambda.template.json)
+* us-east-1 [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=enhanced-snapshots&templateURL=http://particles-enhanced-snapshots.us-east-1.s3.amazonaws.com/master/particles/cftemplates/enhanced_snapshots.template.json)
 
