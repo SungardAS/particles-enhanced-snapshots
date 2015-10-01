@@ -6,8 +6,15 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Kevin McGrath",
-  "license": "Apache 2.0",
+  "author": {
+    "name": "Kevin McGrath",
+    "email": "kevin.mcgrath@sungardas.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sungardas/particles-enhanced-snapshots.git"
+  },
+  "license": "Apache-2.0",
   "keywords": [
     "condensation-particles"
   ],
@@ -17,6 +24,6 @@
     "git-rev-sync": "^1.4.0",
     "gulp": "^3.9.0",
     "particles-common-core": "^0.3.2",
-    "particles-ec2": "^0.2.7"
+    "particles-ec2": "^0.2.9"
   }
 }
