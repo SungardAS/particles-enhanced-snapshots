@@ -20,7 +20,6 @@
     nameTagLogicalId="NameTag"
   }}
 
-
   {{
     resource 'instance' logicalId="Instance"
     nameTagLogicalId="NameTag"
@@ -30,5 +29,16 @@
     accessKeyLogicalId="AccessKey"
     securityGroupLogicalId="SecurityGroup"
   }}
+
+  {{set 'module:particles-ec2' 'instance_output_all' instanceLogicalId="Instance"}}
+  {{set 'module:particles-ec2' 'security_group_output_all' securityGroupLogicalId="SecurityGroup"}}
+
+  {{#output logicalId="UserName"}}
+    "Value": {"Ref": "User"}
+  {{/output}}
+
+  {{#output logicalId="UserArn"}}
+    "Value": {"Fn::GetAtt": ["User","Arn"] }
+  {{/output}}
 
 {{/layout}}

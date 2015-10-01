@@ -14,10 +14,9 @@ Status](https://david-dm.org/SungardAS/particles-enhanced-snapshots.svg?branch=m
 [Condensation](https://github.com/SungardAS/condensation) particles that create a CloudFormation project for
 [Enhanced Snapshots](https://github.com/SungardAS/snapdirector).
 
-The use of condensation allows the template and the code to be deployed
-to any S3 bucket.  The template will always reference the code that it
-was deployed with.  The stack can be updated to add permissions or to
-deploy new releases of Enhanced Snapshots.
+Condensation allows templates and assets to be deployed together,
+to any S3 bucket.  The template will always reference the assets that it
+was deployed with.
 
 ## Use
 
@@ -58,4 +57,11 @@ Using condensation the CloudFormation Template and Enhanced Snapshots assets
 have been deployed to every AWS region.
 
 * us-east-1 [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=enhanced-snapshots&templateURL=http://particles-enhanced-snapshots.us-east-1.s3.amazonaws.com/master/particles/cftemplates/enhanced_snapshots.template.json)
-
+* us-west-1 [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-west-1#/stacks/new?stackName=enhanced-snapshots&templateURL=http://particles-enhanced-snapshots.us-west-1.s3.amazonaws.com/master/particles/cftemplates/enhanced_snapshots.template.json)
+* us-west-2 [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=enhanced-snapshots&templateURL=http://particles-enhanced-snapshots.us-west-2.s3.amazonaws.com/master/particles/cftemplates/enhanced_snapshots.template.json)
+* eu-west-1 [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=enhanced-snapshots&templateURL=http://particles-enhanced-snapshots.eu-west-1.s3.amazonaws.com/master/particles/cftemplates/enhanced_snapshots.template.json)
+* eu-central-1 [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=eu-central-1#/stacks/new?stackName=enhanced-snapshots&templateURL=http://particles-enhanced-snapshots.eu-central-1.s3.amazonaws.com/master/particles/cftemplates/enhanced_snapshots.template.json)
+* ap-southeast-1 [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-1#/stacks/new?stackName=enhanced-snapshots&templateURL=http://particles-enhanced-snapshots.ap-southeast-1.s3.amazonaws.com/master/particles/cftemplates/enhanced_snapshots.template.json)
+* ap-southeast-2 [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/new?stackName=enhanced-snapshots&templateURL=http://particles-enhanced-snapshots.ap-southeast-2.s3.amazonaws.com/master/particles/cftemplates/enhanced_snapshots.template.json)
+* ap-northeast-1 [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks/new?stackName=enhanced-snapshots&templateURL=http://particles-enhanced-snapshots.ap-northeast-1.s3.amazonaws.com/master/particles/cftemplates/enhanced_snapshots.template.json)
+* sa-east-1 [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=sa-east-1#/stacks/new?stackName=enhanced-snapshots&templateURL=http://particles-enhanced-snapshots.sa-east-1.s3.amazonaws.com/master/particles/cftemplates/enhanced_snapshots.template.json)
