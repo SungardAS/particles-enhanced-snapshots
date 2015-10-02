@@ -1,3 +1,9 @@
+---
+ingressPorts:
+  - 443
+  - 80
+  - 22
+---
 {{#layout}}
 
   {{parameter "key_name" logicalId="KeyName"}}
@@ -10,9 +16,29 @@
 
   {{parameter "name_tag" logicalId="NameTag"}}
 
+  {{parameter "module:particles-common-core" "cidr_range" logicalId="SourceCIDR"}}
+  {{condition "module:particles-common-core" "is_empty" logicalId="SourceCIDRIsEmpty" parameterLogicalId="SourceCIDR"}}
+  {{condition "module:particles-common-core" "is_populated" logicalId="SourceCIDRIsPopulated" parameterLogicalId="SourceCIDR"}}
+
   {{resource 'user' logicalId="User"}}
 
   {{resource 'access_key' logicalId="AccessKey"}}
+
+  {{#each ingressPorts}}
+    {{
+      resource "module:particles-common-core" "base"
+      type="AWS::EC2::SecurityGroupIngress"
+      condition="SourceCIDRIsPopulated"
+      logicalId=(concat "SecurityGroupIngress" this)
+      properties=(
+        partial "security_group_ingress_properties"
+        cidrLogicalId="SourceCIDR"
+        securityGroupId='{"Ref": "SecurityGroup"}'
+        fromPort=this
+        toPort=this
+      )
+    }}
+  {{/each}}
 
   {{
     resource 'security_group'
@@ -30,8 +56,9 @@
     securityGroupLogicalId="SecurityGroup"
   }}
 
-  {{set 'module:particles-ec2' 'instance_output_all' instanceLogicalId="Instance"}}
-  {{set 'module:particles-ec2' 'security_group_output_all' securityGroupLogicalId="SecurityGroup"}}
+  {{#output logicalId="AppUrl"}}
+    "Value": {"Fn::Join": ["",["https://",{"Fn::GetAtt": ["Instance","PublicDnsName"]}]]}
+  {{/output}}
 
   {{#output logicalId="UserName"}}
     "Value": {"Ref": "User"}
@@ -40,5 +67,8 @@
   {{#output logicalId="UserArn"}}
     "Value": {"Fn::GetAtt": ["User","Arn"] }
   {{/output}}
+
+  {{set 'module:particles-ec2' 'instance_output_all' instanceLogicalId="Instance"}}
+  {{set 'module:particles-ec2' 'security_group_output_all' securityGroupLogicalId="SecurityGroup"}}
 
 {{/layout}}
