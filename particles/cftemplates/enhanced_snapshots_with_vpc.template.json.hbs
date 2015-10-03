@@ -1,0 +1,37 @@
+{{#layout}}
+
+  {{set "minimal_stack"}}
+
+  {{parameter "vpc_id" logicalId="VpcId" default=""}}
+  {{condition "module:particles-common-core" "is_populated" logicalId="VpcIdIsPopulated" parameterLogicalId="VpcId"}}
+
+  {{parameter "subnet_id" logicalId="SubnetId" default=""}}
+  {{condition "module:particles-common-core" "is_populated" logicalId="SubnetIdIsPopulated" parameterLogicalId="SubnetId"}}
+
+  {{
+    condition "defined_vpc_and_subnet"
+    logicalId="DefinedVpcAndSubnet"
+    vpcIdCondition="VpcIdIsPopulated"
+    subnetIdCondition="SubnetIdIsPopulated"
+  }}
+
+  {{
+    resource 'security_group'
+    logicalId="SecurityGroup"
+    nameTagLogicalId="NameTag"
+    vpcId='{"Fn::If": ["DefinedVpcAndSubnet", {"Ref": "VpcId"}, {"Ref": "AWS::NoValue"}]}'
+  }}
+
+  {{
+    resource 'instance' logicalId="Instance"
+    nameTagLogicalId="NameTag"
+    imageIdLogicalId="ImageId"
+    keyNameLogicalId="KeyName"
+    instanceTypeLogicalId="InstanceType"
+    accessKeyLogicalId="AccessKey"
+    securityGroupLogicalId="SecurityGroup"
+    subnetId='{"Fn::If": ["DefinedVpcAndSubnet", {"Ref": "SubnetId"}, {"Ref": "AWS::NoValue"}]}'
+  }}
+
+
+{{/layout}}

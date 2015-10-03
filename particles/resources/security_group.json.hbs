@@ -2,7 +2,7 @@
   "Type": "AWS::EC2::SecurityGroup",
   "Properties": {
     "GroupDescription": "Enhanced Snapshot",
-    "VpcId": {"Ref": "VpcId"},
+    "VpcId": {{helper "module:particles-common-core" "propertyValue" vpcId}},
     "Tags": [
       {
         "Key": "Name",
