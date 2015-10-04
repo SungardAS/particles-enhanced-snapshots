@@ -56,6 +56,10 @@ Must have node.js 0.12 or later.
 Using condensation the CloudFormation Template and Enhanced Snapshots assets
 have been deployed to every AWS region.
 
+The `Simple Stack` uses the default VPC and has minimal input parameters.  While `KeyName` is the only paramerter that must be changed from it's default value, it is recommended that `SourceCIDR` be changed from 0.0.0.0/0 to a more restrictive range.
+
+The `VPC Stack` adds the ability to configure the VPC and Subnet that the instance will be launched in.  Both are required to be set for the stack to run.
+
 |region|Simple Stack|VPC Stack|
 |------|------------|---------|
 |us-east-1|[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=enhanced-snapshots&templateURL=http://particles-enhanced-snapshots.us-east-1.s3.amazonaws.com/master/particles/cftemplates/enhanced_snapshots.template.json)|[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=enhanced-snapshots&templateURL=http://particles-enhanced-snapshots.us-east-1.s3.amazonaws.com/master/particles/cftemplates/enhanced_snapshots_with_vpc.template.json)|
