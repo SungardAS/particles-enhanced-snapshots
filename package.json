@@ -23,7 +23,7 @@
     "config": "^1.16.0",
     "git-rev-sync": "^1.4.0",
     "gulp": "^3.9.0",
-    "particles-common-core": "^0.3.4",
+    "particles-common-core": "^0.3.5",
     "particles-ec2": "^0.2.9"
   }
 }
