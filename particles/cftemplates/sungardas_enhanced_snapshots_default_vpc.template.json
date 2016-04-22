@@ -1,0 +1,473 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "This template was built to create an instance of SungardAS Enhanced snapshot(es) application and additional AWS resources besides the es-admin role to support the application functions in the default VPC. Reference: https://github.com/sungardas/enhanced-snapshots ",
+  "Conditions": {
+       "SshIpNotPopulated": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "SSHLocation"
+            },
+            "0.0.0.0/0"
+          ]
+        }
+      ]
+    }
+  },
+  "Outputs": {
+    "AppUrl": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Fn::GetAtt": [
+                "Instance",
+                "PublicDnsName"
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "InstanceId": {
+      "Value": {
+        "Ref": "Instance"
+      },
+      "Description": "Instance ID for the Instance resource"
+    },
+    "InstanceAvailabilityZone": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Instance",
+          "AvailabilityZone"
+        ]
+      },
+      "Description": "AvailabilityZone for the Instance resource"
+    },
+    "InstancePrivateDns": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Instance",
+          "PrivateDnsName"
+        ]
+      },
+      "Description": "Private DNS for the Instance resource"
+    },
+    "InstancePrivateIp": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Instance",
+          "PrivateIp"
+        ]
+      },
+      "Description": "Private IP for the Instance resource"
+    },
+    "InstancePublicDns": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Instance",
+          "PublicDnsName"
+        ]
+      },
+      "Description": "Public DNS for the Instance resource"
+    },
+    "InstancePublicIp": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Instance",
+          "PublicIp"
+        ]
+      },
+      "Description": "Public IP for the Instance resource"
+    },
+    "SecurityGroupId": {
+      "Value": {
+        "Fn::GetAtt": [
+          "SecurityGroup",
+          "GroupId"
+        ]
+      },
+      "Description": "Group ID for the SecurityGroup resource"
+    },
+    "SecurityGroupName": {
+      "Value": {
+        "Ref": "SecurityGroup"
+      },
+      "Description": "Name for the SecurityGroup resource"
+    }
+  },
+  "Parameters": {
+    "KeyName": {
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "Description": "[required] Name of an existing EC2 key pair to enable SSH access to the instances",
+      "ConstraintDescription" : "Must be the name of an existing EC2 KeyPair."
+
+    },
+    "InstanceType": {
+      "Default": "m3.large",
+      "ConstraintDescription": "Choose EC2 instance types supported by region from m3-large,x,2x m4-large,x,2x, c3-xlarge,2x,g2.2xlarge",
+      "Type": "String",
+      "Description": "Choose the instance type to use for the Enhanced Snapshot",
+      "AllowedValues": [
+        "m3.large",
+        "m3.xlarge",
+	   "m3.2xlarge",
+        "m4.large",
+        "m4.xlarge",
+	   "m4.2xlarge",
+           "c3.xlarge",
+	   "c3.2xlarge",
+           "g2.2xlarge"
+      ]
+    },
+    "NameTag": {
+      "Type": "String",
+      "Default": "Enhanced Snapshots",
+      "Description": "[required] Will set the name tag on created resources"
+    },
+"VolumeSize": {
+            "Description": "[Required]Size of Instance EBS volume (in GB). Size can be as small as 8 or higher for large amount of data keys storage",
+            "Type": "Number",
+	    "MinValue": "8",
+            "Default": "48",
+            "ConstraintDescription": "Size can be as small as 8 however can be higher to accomodate large size backups"
+        },
+        "SSHLocation": {
+            "Description": " The IP address range that can be used to access the Enhanced Snapshots instance over SSH.  For security considerations 0.0.0.0/0 is not recommended, please restrict to a smaller IP range. x.x.x.x/x format",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP range of the form x.x.x.x/x."
+        },
+    "SourceCIDR": {
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "MaxLength": "18",
+      "MinLength": "9",
+      "Description": "The IP address range that can be used to access the Enhanced Snapshots instance over HTTP(80) and HTTPS(443).For security considerations 0.0.0.0/0 is not recommended, please restrict to a smaller IP range.  x.x.x.x/x format ",
+      "ConstraintDescription": "must be a valid CIDR range formatted as x.x.x.x/x"
+    }
+  },
+"Mappings": {
+        "RegionMap": {
+      "us-east-1": {
+        "ImageID": "ami-fd838b97"
+      },
+      "us-west-1": {
+        "ImageID": "ami-b0b5c8d0"
+      },
+      "us-west-2": {
+        "ImageID": "ami-e0fc1680"
+      },
+      "sa-east-1": {
+        "ImageID": "ami-0a2fa366"
+      },
+      "eu-central-1": {
+        "ImageID": "ami-7148ae1e"
+      },
+      "eu-west-1": {
+        "ImageID": "ami-75a32506"
+      },
+      "ap-southeast-1": {
+        "ImageID": "ami-0c2ce66f"
+      },
+      "ap-southeast-2": {
+        "ImageID": "ami-ff01229c"
+      },
+      "ap-northeast-1": {
+        "ImageID": "ami-e7aabd89"
+      }
+		}
+        },
+  "Resources": {
+      "esadmin": {
+         "Type": "AWS::IAM::Role",
+         "Properties": {
+            "AssumeRolePolicyDocument": {
+               "Version" : "2012-10-17",
+               "Statement": [ {
+                  "Effect": "Allow",
+                  "Principal": {
+                     "Service": [ "ec2.amazonaws.com" ]
+                  },
+                  "Action": [ "sts:AssumeRole" ]
+               } ]
+            },
+            "Path": "/"
+         }
+      },
+      "Snapappec2Policy": {
+         "Type": "AWS::IAM::ManagedPolicy",
+         "Properties": {
+            "Description": "Policy for creating es admin role",
+            "PolicyDocument": {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "1",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:AttachVolume",
+                "ec2:CreateSnapshot",
+                "ec2:CreateTags",
+                "ec2:CreateVolume",
+                "ec2:DeleteSnapshot",
+                "ec2:DeleteTags",
+                "ec2:DeleteVolume",
+                "ec2:DescribeAvailabilityZones",
+                "ec2:DescribeInstanceAttribute",
+                "ec2:DescribeInstanceStatus",
+                "ec2:DescribeInstances",
+                "ec2:TerminateInstances",
+                "ec2:DescribeRegions",
+                "ec2:DescribeSnapshotAttribute",
+                "ec2:DescribeSnapshots",
+                "ec2:DescribeTags",
+                "ec2:DescribeVolumeAttribute",
+                "ec2:DescribeVolumeStatus",
+                "ec2:DescribeVolumes",
+                "ec2:DetachVolume",
+                "ec2:EnableVolumeIO",
+                "ec2:ModifyInstanceAttribute",
+                "ec2:ModifySnapshotAttribute",
+                "ec2:ModifyVolumeAttribute",
+                "ec2:ResetSnapshotAttribute",
+		"s3:ListAllMyBuckets",
+                "dynamodb:ListTables",
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:DescribeLogStreams"
+            ],
+            "Resource": "*"
+        },
+{
+            "Sid": "AllowReservedCapacityDescriptions",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:DescribeReservedCapacity",
+                "dynamodb:DescribeReservedCapacityOfferings"
+            ],
+            "Resource": "arn:aws:dynamodb:::*"
+        },
+    {
+      "Effect": "Allow",
+      "Action": "dynamodb:*",
+      "Resource": [	
+{"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/BackupList"]]},
+{"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Configurations"]]},
+{"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Retention"]]},
+{"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Snapshots"]]},
+{"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Tasks"]]},
+{"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Users"]]},
+{"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/BackupList/index/*"]]},
+{"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Configurations/index/*"]]},
+{"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Retention/index/*"]]},
+{"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Snapshots/index/*"]]},
+{"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Tasks/index/*"]]},
+{"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Users/index/*"]]}
+
+     ],
+
+      "Condition": {}
+    },
+{
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource":"arn:aws:s3:::com.sungardas.enhancedsnapshots.*",
+      "Condition": {}
+    },
+    {
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3:::com.sungardasenhancedsnapshots.*/*",
+      "Condition": {}
+    }
+
+
+    ]
+},
+            "Roles": [ { "Ref": "esadmin" } ]
+         }
+      },
+      "Snapappec2Profile": {
+         "Type": "AWS::IAM::InstanceProfile",
+         "Properties": {
+            "Path": "/",
+            "Roles": [ { "Ref": "esadmin" } ]
+         }
+      },
+    
+    "SecurityGroupIngress443": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "CidrIp": {
+          "Ref": "SourceCIDR"
+        },
+        "FromPort": 443,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "SecurityGroup",
+            "GroupId"
+          ]
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 443
+      }
+    },
+    "SecurityGroupIngress80": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "CidrIp": {
+          "Ref": "SourceCIDR"
+        },
+        "FromPort": 80,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "SecurityGroup",
+            "GroupId"
+          ]
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 80
+      }
+    },
+    "SecurityGroupIngress22": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "CidrIp": {
+          "Ref": "SSHLocation"
+        },
+        "FromPort": 22,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "SecurityGroup",
+            "GroupId"
+          ]
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 22
+      }
+    },
+    "SecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enhanced Snapshot",
+        "VpcId": 
+            {
+              "Ref": "AWS::NoValue"
+            },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Ref": "NameTag"
+            }
+          }
+        ]
+      }
+    },
+    "Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Metadata": {
+        
+        },
+      "Properties": {
+        "ImageId": {
+           "Fn::FindInMap": [ "RegionMap", {
+                        "Ref": "AWS::Region"
+                    }, "ImageID" ]
+
+        },
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "SecurityGroup",
+              "GroupId"
+            ]
+          }
+        ],
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+"BlockDeviceMappings": [ { "DeviceName": "/dev/xvda", "Ebs": { "VolumeSize": {
+          "Ref": "VolumeSize"
+        }} } ],
+        "SubnetId": {
+                    "Ref": "AWS::NoValue"
+	            },
+              "IamInstanceProfile": {
+                    "Ref": "Snapappec2Profile"
+                },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -ex\n",
+                "# Helper function\n",
+                "function error_exit\n",
+                "{\n",
+                "  /opt/aws/bin/cfn-signal -e 1 -r \"$1\" ",
+                "  --stack ",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "  --resource AppInstanceGroup ",
+                "  --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "\n",
+                "  exit 1\n",
+                "}\n",
+                "# Process CloudFormation init definitions\n",
+                "/opt/aws/bin/cfn-init -s ",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                " -r Instance ",
+                " -c default ",
+                "    --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                " || error_exit 'Failed to run cfn-init'\n",
+                "# All is well so signal success\n",
+                "/opt/aws/bin/cfn-signal -e 0 -r \"Stack setup complete\" ",
+                "  --stack ",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "  --resource Instance ",
+                "  --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "\n",
+                "#EOF"
+              ]
+            ]
+          }
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Ref": "NameTag"
+            }
+          }
+        ]
+      }
+    }
+
+        
+  }
+}
