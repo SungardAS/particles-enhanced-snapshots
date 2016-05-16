@@ -1,4 +1,4 @@
-# condensation-particles
+# particles-enhanced-snapshots
 
 [![condensation][condensation-image]][condensation-url]
 
@@ -34,9 +34,9 @@ Must have node.js 0.12 or later.
    Envionment Variables or AWS Properties file.
 4. Build:
     ```
-        > git clone https://github.com/SungardAS/condensation-particles
+        > git clone https://github.com/SungardAS/particles-enhanced-snapshots
         
-        > cd condensation-particles
+        > cd particles-enhanced-snapshots
         
         > npm install
         
@@ -70,11 +70,11 @@ The `VPC Stack` adds the ability to configure the VPC and Subnet that the instan
 [condensation-image]: https://raw.githubusercontent.com/SungardAS/condensation/master/docs/images/condensation_logo.png
 [condensation-url]: https://github.com/SungardAS/condensation
 [enhanced-snapshots-url]: https://github.com/SungardAS/enhanced-snapshots
-[npm-image]: https://badge.fury.io/js/condensation-particles.svg
-[npm-url]: https://npmjs.org/package/condensation-particles
+[npm-image]: https://badge.fury.io/js/particles-enhanced-snapshots.svg
+[npm-url]: https://npmjs.org/package/particles-enhanced-snapshots
 [gitter-image]: https://badges.gitter.im/Join%20Chat.svg
 [gitter-url]: https://gitter.im/SungardAS/condensation?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
-[travis-image]: https://travis-ci.org/SungardAS/condensation-particles.svg?branch=develop
-[travis-url]: https://travis-ci.org/SungardAS/condensation-particles
-[daviddm-image]: https://david-dm.org/SungardAS/condensation-particles.svg?theme=shields.io
-[daviddm-url]: https://david-dm.org/SungardAS/condensation-particles
+[travis-image]: https://travis-ci.org/SungardAS/particles-enhanced-snapshots.svg?branch=develop
+[travis-url]: https://travis-ci.org/SungardAS/particles-enhanced-snapshots
+[daviddm-image]: https://david-dm.org/SungardAS/particles-enhanced-snapshots.svg?theme=shields.io
+[daviddm-url]: https://david-dm.org/SungardAS/particles-enhanced-snapshots
