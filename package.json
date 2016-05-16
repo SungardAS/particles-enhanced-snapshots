@@ -1,6 +1,9 @@
 {
   "name": "particles-enhanced-snapshots",
   "version": "0.1.0",
+  "publishConfig": {
+    "tag": "latest"
+  },
   "description": "Condensation particles for Enhanced Snapshots by Sungard Availability Services | Labs",
   "scripts": {
     "test": "./node_modules/.bin/mocha",
