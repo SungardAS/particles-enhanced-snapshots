@@ -24,18 +24,8 @@
           "003": {
             "command": {"Fn::Join": ["",["/usr/bin/aws configure set default.region ", {"Ref": "AWS::Region"}]]}
           }
-        },
-        "files": {
-          "/etc/init.d/tomcat8": {
-            "source": "{{assetS3Url 'etc_initd_tomcat8.tmpl'}}",
-            "context" : {
-              "aws_access_key_id": {"Ref": "{{accessKeyLogicalId}}" },
-              "aws_secret_access_key": {"Fn::GetAtt": ["{{accessKeyLogicalId}}", "SecretAccessKey"]}
-            },
-            "mode": "000755"
-          }
         }
-      },
+      },    
       "runApp": {
         "commands": {
           "001": {
@@ -51,6 +41,7 @@
     "SecurityGroupIds": [ { "Fn::GetAtt" : ["{{securityGroupLogicalId}}", "GroupId"] } ],
     "InstanceType": {"Ref": "{{instanceTypeLogicalId}}" },
     "SubnetId": {{helper "module:particles-common-core" "propertyValue" subnetId}},
+    "IamInstanceProfile": {"Ref": "InstanceProfile"},
     "UserData": { "Fn::Base64": { "Fn::Join": ["", [
       "#!/bin/bash -ex\n",
 
