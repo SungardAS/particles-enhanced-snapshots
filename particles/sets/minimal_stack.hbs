@@ -11,12 +11,12 @@ ingressPorts:
   {{parameter "name_tag" logicalId="NameTag"}}
 
   {{
-    parameter "module:particles-common-core" "cidr_range"
+    parameter "m:core" "cidr_range"
     logicalId="SourceCIDR"
     default="0.0.0.0/0"
     description="If CreateSecurityRules is 'true' then ports 80, 443 and 22 will be opened for this CIDR.  It is highly recommended to change this from the default to a more restrictive setting."
   }}
-  {{set "module:particles-common-core" "true_false" parameterLogicalId="CreateSecurityRules" default="true"}}
+  {{set "m:core" "true_false" parameterLogicalId="CreateSecurityRules" default="true"}}
 
   {{resource 'user' logicalId="User"}}
   {{resource 'access_key' logicalId="AccessKey"}}
@@ -26,7 +26,7 @@ ingressPorts:
 
   {{#each ingressPorts}}
     {{
-      resource "module:particles-common-core" "base"
+      resource "m:core" "base"
       type="AWS::EC2::SecurityGroupIngress"
       condition="CreateSecurityRulesIsTrueCondition"
       logicalId=(concat "SecurityGroupIngress" this)
@@ -41,19 +41,19 @@ ingressPorts:
   {{/each}}
 
   {{
-    output "module:particles-common-core" "base"
+    output "m:core" "base"
     logicalId="AppUrl"
     value='{"Fn::Join": ["",["https://",{"Fn::GetAtt": ["Instance","PublicDnsName"]}]]}'
   }}
 
   {{
-    output "module:particles-common-core" "base"
+    output "m:core" "base"
     logicalId="UserName"
     value='{"Ref": "User"}'
   }}
 
   {{
-    output "module:particles-common-core" "base"
+    output "m:core" "base"
     logicalId="UserArn" value='{"Fn::GetAtt": ["User","Arn"] }'
   }}
 

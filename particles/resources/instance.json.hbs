@@ -40,7 +40,7 @@
     "KeyName": {"Ref": "{{keyNameLogicalId}}" },
     "SecurityGroupIds": [ { "Fn::GetAtt" : ["{{securityGroupLogicalId}}", "GroupId"] } ],
     "InstanceType": {"Ref": "{{instanceTypeLogicalId}}" },
-    "SubnetId": {{helper "module:particles-common-core" "propertyValue" subnetId}},
+    "SubnetId": {{helper "m:core" "propertyValue" subnetId}},
     "IamInstanceProfile": {"Ref": "InstanceProfile"},
     "UserData": { "Fn::Base64": { "Fn::Join": ["", [
       "#!/bin/bash -ex\n",

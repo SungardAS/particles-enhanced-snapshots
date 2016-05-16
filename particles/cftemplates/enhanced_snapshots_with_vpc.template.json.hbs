@@ -5,10 +5,10 @@
   {{set "minimal_stack"}}
 
   {{parameter "vpc_id" logicalId="VpcId" default=""}}
-  {{condition "module:particles-common-core" "is_populated" logicalId="VpcIdIsPopulated" parameterLogicalId="VpcId"}}
+  {{condition "m:core" "is_populated" logicalId="VpcIdIsPopulated" parameterLogicalId="VpcId"}}
 
   {{parameter "subnet_id" logicalId="SubnetId" default=""}}
-  {{condition "module:particles-common-core" "is_populated" logicalId="SubnetIdIsPopulated" parameterLogicalId="SubnetId"}}
+  {{condition "m:core" "is_populated" logicalId="SubnetIdIsPopulated" parameterLogicalId="SubnetId"}}
 
   {{
     condition "defined_vpc_and_subnet"

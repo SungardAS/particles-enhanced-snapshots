@@ -1,7 +1,7 @@
 {
    "CidrIp": {"Ref": "{{cidrLogicalId}}"},
    "FromPort": {{fromPort}},
-   "GroupId": {{helper "module:particles-common-core" "propertyValue" securityGroupId}},
+   "GroupId": {{helper "m:core" "propertyValue" securityGroupId}},
    "IpProtocol": "tcp",
    "ToPort": {{toPort}}
 }
