@@ -1,15 +1,7 @@
-  {{#layout}}
-{{parameter "role_select" logicalId="RoleSelect"}}
+{{#layout}}
 
-  {{condition "defined_role" logicalId="DefinedRole"
-   roleSelectLogicalId="RoleSelect"}}
- 
-   {{
-  resource 'instanceprofile' logicalId="InstanceProfileEsAdmin"
-  roleSelectLogicalId="RoleSelect"
-  }}
-  {{resource 'role' logicalId="EsAdmin"
-         definedRoleLogicalId="DefinedRole"}}
-  {{resource 'managedpolicy' logicalId="ManagedPolicy"
-    definedRoleLogicalId="DefinedRole"}}
+   {{resource 'instanceprofile_mp' logicalId="InstanceProfileEsAdmin" }}
+   {{resource 'role' logicalId="EsAdmin"}}
+   {{resource 'managedpolicy' logicalId="ManagedPolicy"}}
+
 {{/layout}}
