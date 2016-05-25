@@ -1,0 +1,8 @@
+{{
+ parameter "m:core" "base"
+  type="Number"
+  description="[Required]Size of Instance EBS volume (in GB). Size can be as small as 8 or higher for large amount of data keys storage"
+  minValue="8"
+  default="48"
+  constraintDescription="Size can be as small as 8 however can be higher to accomodate large size backups"
+}}

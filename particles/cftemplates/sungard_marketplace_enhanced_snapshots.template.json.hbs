@@ -1,10 +1,7 @@
 {{#layout
   TemplateDescription=(partial 'template_description')
 }}
-{{condition "defined_ssh" logicalId="DefinedSsh"
-  sshLocationLogicalId="SshLocation"}}
-
-  {{set "minimal_stack"}}
+  {{set "minimal_stack_mp"}}
 
   {{
     resource 'security_group'
@@ -14,7 +11,7 @@
   }}
 
   {{
-    resource 'instance' logicalId="Instance"
+    resource 'instance_mp' logicalId="Instance"
     nameTagLogicalId="NameTag"
     ImageIdLogicalId="ImageId"
     keyNameLogicalId="KeyName"

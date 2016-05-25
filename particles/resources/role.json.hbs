@@ -1,5 +1,6 @@
 {{#resource}}
        "Type": "AWS::IAM::Role",
+	"Condition" : "{{definedRoleLogicalId}}",
          "Properties": {
             "AssumeRolePolicyDocument": {
                "Version" : "2012-10-17",

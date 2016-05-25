@@ -1,5 +1,6 @@
 {{#resource}}
          "Type": "AWS::IAM::ManagedPolicy",
+	"Condition" : "{{definedRoleLogicalId}}",
          "Properties": {
             "Description": "Policy es admin role",
             "PolicyDocument": {
@@ -98,6 +99,6 @@
         }
     ]
 },
-            "Roles": [ { "Ref": "EsAdmin" } ]
-         }
+"Roles": [{"Ref": "EsAdmin" }]
+}
 {{/resource}}
