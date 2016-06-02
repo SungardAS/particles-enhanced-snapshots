@@ -28,7 +28,7 @@
     }
   },
   "Properties": {
-    "ImageId":  { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "ImageID"]},
+    "ImageId":  {"Ref": "{{imageIdLogicalId}}" },
     "KeyName": {"Ref": "{{keyNameLogicalId}}" },
     "SecurityGroupIds": [ { "Fn::GetAtt" : ["{{securityGroupLogicalId}}", "GroupId"] } ],
     "InstanceType": {"Ref": "{{instanceTypeLogicalId}}" },

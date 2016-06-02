@@ -76,26 +76,24 @@
           "Effect": "Allow",
           "Action": "dynamodb:*",
           "Resource": [
-            {"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/BackupList"]]},
-            {"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Configurations"]]},
-            {"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Retention"]]},
-            {"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Snapshots"]]},
-            {"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Tasks"]]},
-            {"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Users"]]},
-            {"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/BackupList/index/*"]]},
-            {"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Configurations/index/*"]]},
-            {"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Retention/index/*"]]},
-            {"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Snapshots/index/*"]]},
-            {"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Tasks/index/*"]]},
-            {"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/Users/index/*"]]}
+            {"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/ENHANCEDSNAPSHOTS*"]]},
+            {"Fn::Join": [":",["arn:aws:dynamodb",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"table/ENHANCEDSNAPSHOTS*/index/*"]]}
           ],
           "Condition": {}
         },
         {
             "Condition": {},
             "Action": "s3:*",
-            "Resource": "arn:aws:s3:::com.sungardas.enhancedsnapshots*",
+            "Resource": [
+		"arn:aws:s3:::com.sungardas.enhancedsnapshots*",
+		"arn:aws:s3:::enhancedsnapshots*"
+	    ],
             "Effect": "Allow"
+        },
+        {
+            "Action": "s3:CreateBucket",
+            "Resource": "arn:aws:s3:::com.sungardas.enhancedsnapshots*",
+            "Effect": "Deny"
         }
     ]
 },

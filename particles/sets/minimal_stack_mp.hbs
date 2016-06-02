@@ -15,11 +15,13 @@ ingressPortsSSH:
 
    {{parameter "m:core" "cidr_range"
     logicalId="SourceCIDR"
-  description="The IP address range that can be used to access the Enhanced Snapshots instance over HTTP(80) and HTTPS(443).For security considerations 0.0.0.0/0 is not recommended, please restrict to a smaller IP range.  x.x.x.x/x format "
+    allowedPattern="(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    maxLength="18"
+    minLength="9"
+    description="The IP address range that can be used to access the Enhanced Snapshots instance over HTTP(80) and HTTPS(443).For security considerations 0.0.0.0/0 is not recommended, please restrict to a smaller IP range.  x.x.x.x/x format "
     constraintDescription="must be a valid CIDR range formatted as x.x.x.x/x"
   }}
 
-  {{set "m:core" "true_false" parameterLogicalId="CreateSecurityRules" default="true"}}
 
    {{resource 'instanceprofile_mp' logicalId="InstanceProfileEsAdmin"}}
   {{resource 'role' logicalId="EsAdmin"}}
@@ -29,7 +31,6 @@ ingressPortsSSH:
     {{
       resource "m:core" "base"
       type="AWS::EC2::SecurityGroupIngress"
-      condition="CreateSecurityRulesIsTrueCondition"
       logicalId=(concat "SecurityGroupIngress" this)
       properties=(
         partial "security_group_ingress_properties"
@@ -45,7 +46,6 @@ ingressPortsSSH:
     {{
       resource "m:core" "base"
       type="AWS::EC2::SecurityGroupIngress"
-      condition="CreateSecurityRulesIsTrueCondition"
       logicalId=(concat "SecurityGroupIngress" this)
       properties=(
         partial "security_group_ingress_properties"

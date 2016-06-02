@@ -16,14 +16,16 @@ ingressPortsSSH:
 
   {{condition "defined_role" logicalId="DefinedRole"
    roleSelectLogicalId="RoleSelect"}}
-  {{
-    parameter "m:core" "cidr_range"
-    logicalId="SourceCIDR"
-    default="0.0.0.0/0"
-    description="If CreateSecurityRules is 'true' then ports 80, 443 and 22 will be opened for this CIDR.  It is highly recommended to change this from the default to a more restrictive setting."
-  }}
   
-  {{set "m:core" "true_false" parameterLogicalId="CreateSecurityRules" default="true"}}
+  {{parameter "m:core" "cidr_range"
+    logicalId="SourceCIDR"
+    allowedPattern="(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    maxLength="18"
+    minLength="9"
+    description="The IP address range that can be used to access the Enhanced Snapshots instance over HTTP(80) and HTTPS(443).For security considerations 0.0.0.0/0 is not recommended, please restrict to a smaller IP range.  x.x.x.x/x format "
+    constraintDescription="must be a valid CIDR range formatted as x.x.x.x/x"
+  }}
+ 
 
    {{
   resource 'instanceprofile' logicalId="InstanceProfileEsAdmin"
@@ -35,7 +37,7 @@ ingressPortsSSH:
   {{resource 'managedpolicy' logicalId="ManagedPolicy"
     definedRoleLogicalId="DefinedRole"}} 
 
-
+  {{set "m:core" "true_false" parameterLogicalId="CreateSecurityRules" default="true"}}
   {{#each ingressPortsSSH}}
     {{
       resource "m:core" "base"
