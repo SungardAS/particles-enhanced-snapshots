@@ -14,7 +14,7 @@
 [Enhanced Snapshots][enhanced-snapshots-url].
 
 Condensation allows templates and assets to be deployed together,
-to any S3 bucket.  The template will always reference the assets that it
+to any S3 bucket. The template will always reference the assets that it
 was deployed with.
 
 ## Use
