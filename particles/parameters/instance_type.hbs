@@ -2,8 +2,9 @@
   parameter "m:core" "base"
   type="String"
   description="Choose the instance type to use for the Enhanced Snapshot"
+  constraintDescription="Choose EC2 instance types supported by region from m3-large,x,2x m4-large,x,2x, c3-xlarge,2x,g2.2xlarge"
   default="m3.large"
-  allowedValues='["t2.medium",	
+  allowedValues='["t2.medium",
 		"m3.large",
 	        "m3.xlarge",
 		"m3.2xlarge",

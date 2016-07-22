@@ -110,7 +110,8 @@
   "Parameters": {
     "KeyName": {
       "Type": "AWS::EC2::KeyPair::KeyName",
-      "Description": "[required] Name of an existing EC2 key pair to enable SSH access to the instances"
+      "Description": "[required] Name of an existing EC2 key pair to enable SSH access to the instances",
+      "ConstraintDescription" : "Must be the name of an existing EC2 KeyPair."
     },
     "ImageId": {
       "Type": "AWS::EC2::Image::Id",
@@ -132,7 +133,8 @@
         "c3.2xlarge",
         "g2.2xlarge"
       ],
-      "Description": "Choose the instance type to use for the Enhanced Snapshot"
+      "Description": "Choose the instance type to use for the Enhanced Snapshot",
+      "ConstraintDescription": "Choose EC2 instance types supported by region from m3-large,x,2x m4-large,x,2x, c3-xlarge,2x,g2.2xlarge"
     },
     "NameTag": {
       "Type": "String",
@@ -164,7 +166,8 @@
     "RoleSelect": {
       "Type": "String",
       "Default": "EsAdmin",
-      "Description": "[required] Enter name of existing ROLE or leave default value EsAdmin and new Role wiil be created"
+      "Description": "[required] Enter name of existing ROLE or leave default value EsAdmin and new Role wiil be created",
+      "ConstraintDescription": "You need to specify role name or use default EsAdmin with minimum permissions"
     },
     "SourceCIDR": {
       "Type": "String",
