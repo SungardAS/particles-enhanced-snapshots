@@ -537,7 +537,7 @@
           "S3AccessCreds": {
             "type": "S3",
             "buckets": [
-              "1yuraparticles.us-east-1"
+              "condensation-particles.us-east-1"
             ]
           }
         },

@@ -5,7 +5,7 @@
   "eu-central-1":{"ami":""},
   "eu-west-1":{"ami":"ami-31714646"},
   "sa-east-1":{"ami":""},
-  "us-east-1":{"ami":"ami-911fd9fc"},
+  "us-east-1":{"ami":"ami-77ed6260"},
   "us-west-1":{"ami":"ami-572deb13"},
   "us-west-2":{"ami":"ami-154d8875"}
 }
