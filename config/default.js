@@ -1,10 +1,11 @@
 var gitrev = require('git-rev-sync');
 
 var regions = [
-  'us-east-1',
-  'us-west-1',
-  'us-west-2',
-  'eu-west-1'
+  //Cannot use until new AMIs will be tested
+  //'us-east-1',
+  //'us-west-1',
+  //'us-west-2',
+  //'eu-west-1'
   // TODO: Cannot use until AMI list is updated
   //'eu-central-1',
   //'ap-northeast-1',
