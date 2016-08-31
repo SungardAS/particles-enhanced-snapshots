@@ -4,32 +4,32 @@
   "Mappings": {
     "RegionMap": {
       "us-east-1": {
-        "ImageID": "ami-77ed6260"
-      },
-      "us-west-1": {
-        "ImageID": ""
-      },
-      "us-west-2": {
-        "ImageID": ""
-      },
-      "sa-east-1": {
-        "ImageID": ""
-      },
-      "eu-central-1": {
-        "ImageID": ""
-      },
-      "eu-west-1": {
-        "ImageID": ""
-      },
-      "ap-southeast-1": {
-        "ImageID": ""
-      },
-      "ap-southeast-2": {
-        "ImageID": ""
-      },
-      "ap-northeast-1": {
-        "ImageID": ""
-      }
+       "ImageID": "ami-9a5ad28d"
+     },
+     "us-west-1": {
+       "ImageID": "ami-a296d7c2"
+     },
+     "us-west-2": {
+       "ImageID": "ami-1406ca74"
+     },
+     "sa-east-1": {
+       "ImageID": "ami-53dc4b3f"
+     },
+     "eu-central-1": {
+       "ImageID": "ami-8ee014e1"
+     },
+     "eu-west-1": {
+       "ImageID": "ami-0f15777c"
+     },
+     "ap-southeast-1": {
+       "ImageID": "ami-e29b4481"
+     },
+     "ap-southeast-2": {
+       "ImageID": "ami-7984ae1a"
+     },
+     "ap-northeast-1": {
+       "ImageID": "ami-3645bd57"
+     }
     }
   },
   "Outputs": {
