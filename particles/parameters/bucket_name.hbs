@@ -1,0 +1,9 @@
+{{
+  parameter "m:core" "base"
+  type="String"
+  description="[required] Set the bucket name where sdfs data will be stored. Follow Amazon S3 Bucket Naming Requirements."
+  constraintDescription="Value must be not null or use default name - enhancedsnapshots "
+  default="enhancedsnapshots"
+  minLength="1"
+  allowedPattern="^\\S+$"
+}}

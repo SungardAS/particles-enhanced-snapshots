@@ -14,10 +14,12 @@ ingressPortsSSH:
   {{parameter "iops" logicalId="VolumeIOps"}}
   {{parameter "ssh_location" logicalId="SshLocation"}}
   {{parameter "role_select" logicalId="RoleSelect"}}
+  {{parameter "bucket_name" logicalId="BucketName"}}
 
   {{condition "defined_role" logicalId="DefinedRole"
    roleSelectLogicalId="RoleSelect"}}
-  
+ 
+ 
   {{parameter "m:core" "cidr_range"
     logicalId="SourceCIDR"
     allowedPattern="(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
