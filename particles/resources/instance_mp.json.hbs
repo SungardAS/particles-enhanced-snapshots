@@ -9,7 +9,7 @@
     },
     "AWS::CloudFormation::Init" : {
       "configSets": {
-        "default": ["setKeys","runApp"]
+        "default": ["setKeys","runEnvVar","runApp"]
       },
       "setKeys": {
         "commands": {
@@ -17,7 +17,15 @@
             "command": {"Fn::Join": ["",["/usr/bin/aws configure set default.region ", {"Ref": "AWS::Region"}]]}
           }
         }
-      },    
+      },
+     "runEnvVar": {
+        "commands": {
+          "001": {
+            "command": "sed -i \"/export PATH/i export CUSTOM_BUCKET_NAME=\"$CUSTOM_BUCKET_NAME\" \" /etc/init.d/tomcat8 ",
+            "env": { "CUSTOM_BUCKET_NAME" : {"Ref": "BucketName"} }
+          }
+        }
+      },
       "runApp": {
         "commands": {
           "001": {
@@ -27,7 +35,7 @@
       }
     }
   },
-  "Properties": {
+ "Properties": {
     "ImageId": { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "ImageID"]},
     "KeyName": {"Ref": "{{keyNameLogicalId}}" },
     "SecurityGroupIds": [ { "Fn::GetAtt" : ["{{securityGroupLogicalId}}", "GroupId"] } ],

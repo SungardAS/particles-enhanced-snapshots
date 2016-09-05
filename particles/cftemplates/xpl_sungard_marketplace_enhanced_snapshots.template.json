@@ -4,32 +4,32 @@
   "Mappings": {
     "RegionMap": {
       "us-east-1": {
-       "ImageID": "ami-9a5ad28d"
-     },
-     "us-west-1": {
-       "ImageID": "ami-a296d7c2"
-     },
-     "us-west-2": {
-       "ImageID": "ami-1406ca74"
-     },
-     "sa-east-1": {
-       "ImageID": "ami-53dc4b3f"
-     },
-     "eu-central-1": {
-       "ImageID": "ami-8ee014e1"
-     },
-     "eu-west-1": {
-       "ImageID": "ami-0f15777c"
-     },
-     "ap-southeast-1": {
-       "ImageID": "ami-e29b4481"
-     },
-     "ap-southeast-2": {
-       "ImageID": "ami-7984ae1a"
-     },
-     "ap-northeast-1": {
-       "ImageID": "ami-3645bd57"
-     }
+        "ImageID": "ami-9a5ad28d"
+      },
+      "us-west-1": {
+        "ImageID": "ami-a296d7c2"
+      },
+      "us-west-2": {
+        "ImageID": "ami-1406ca74"
+      },
+      "sa-east-1": {
+        "ImageID": "ami-53dc4b3f"
+      },
+      "eu-central-1": {
+        "ImageID": "ami-8ee014e1"
+      },
+      "eu-west-1": {
+        "ImageID": "ami-0f15777c"
+      },
+      "ap-southeast-1": {
+        "ImageID": "ami-e29b4481"
+      },
+      "ap-southeast-2": {
+        "ImageID": "ami-7984ae1a"
+      },
+      "ap-northeast-1": {
+        "ImageID": "ami-3645bd57"
+      }
     }
   },
   "Outputs": {
@@ -104,7 +104,7 @@
     "KeyName": {
       "Type": "AWS::EC2::KeyPair::KeyName",
       "Description": "[required] Name of an existing EC2 key pair to enable SSH access to the instances",
-      "ConstraintDescription" : "Must be the name of an existing EC2 KeyPair."
+      "ConstraintDescription": "Must be the name of an existing EC2 KeyPair."
     },
     "InstanceType": {
       "Type": "String",
@@ -150,6 +150,15 @@
       "MinLength": "9",
       "Description": "The IP address range that can be used to access the Enhanced Snapshots instance over SSH.  For security considerations 0.0.0.0/0 is not recommended, please restrict to a smaller IP range. x.x.x.x/x format",
       "ConstraintDescription": "must be a valid IP range of the form x.x.x.x/x."
+    },
+    "BucketName": {
+      "Type": "String",
+      "Default": "enhancedsnapshots",
+      "AllowedPattern": "^\\S+$",
+      "MaxLength": "63",
+      "MinLength": "3",
+      "Description": "[required] Use your previously created bucket name for sdfs data or leave default value. Please, follow Amazon S3 Bucket Naming Requirements.",
+      "ConstraintDescription": "Value must be not null or use default name - enhancedsnapshots "
     },
     "SourceCIDR": {
       "Type": "String",
@@ -364,7 +373,18 @@
               "Action": "s3:*",
               "Resource": [
                 "arn:aws:s3:::com.sungardas.enhancedsnapshots*",
-                "arn:aws:s3:::enhancedsnapshots*"
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      {
+                        "Ref": "BucketName"
+                      },
+                      "*"
+                    ]
+                  ]
+                }
               ],
               "Effect": "Allow"
             },
@@ -465,6 +485,7 @@
           "configSets": {
             "default": [
               "setKeys",
+              "runEnvVar",
               "runApp"
             ]
           },
@@ -481,6 +502,18 @@
                       }
                     ]
                   ]
+                }
+              }
+            }
+          },
+          "runEnvVar": {
+            "commands": {
+              "001": {
+                "command": "sed -i \"/export PATH/i export CUSTOM_BUCKET_NAME=\"$CUSTOM_BUCKET_NAME\" \" /etc/init.d/tomcat8 ",
+                "env": {
+                  "CUSTOM_BUCKET_NAME": {
+                    "Ref": "BucketName"
+                  }
                 }
               }
             }

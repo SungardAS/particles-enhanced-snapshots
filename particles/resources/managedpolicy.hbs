@@ -86,7 +86,7 @@
             "Action": "s3:*",
             "Resource": [
 		"arn:aws:s3:::com.sungardas.enhancedsnapshots*",
-		"arn:aws:s3:::enhancedsnapshots*"
+                {"Fn::Join" : [ "", [ "arn:aws:s3:::", { "Ref": "BucketName"}, "*"]] }
 	    ],
             "Effect": "Allow"
         },
