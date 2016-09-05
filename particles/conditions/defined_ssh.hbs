@@ -1,0 +1,10 @@
+"Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "{{sshLocationLogicalId}}"
+            },
+            "0.0.0.0/0"
+          ]
+        }
+      ]

@@ -1,29 +1,50 @@
 {
   "name": "particles-enhanced-snapshots",
   "version": "0.1.0",
-  "description": "[Condensation](https://github.com/SungardAS/condensation) particles that create a CloudFormation project for [Enhanced Snapshots](https://github.com/SungardAS/snapdirector)",
-  "main": "index.js",
+  "publishConfig": {
+    "tag": "latest"
+  },
+  "description": "Condensation particles for Enhanced Snapshots by Sungard Availability Services | Labs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha",
+    "build": "./node_modules/.bin/gulp condensation:build",
+    "deploy": "./node_modules/.bin/gulp condensation:deploy",
+    "gulp": "./node_modules/.bin/gulp"
   },
   "author": {
     "name": "Kevin McGrath",
     "email": "kevin.mcgrath@sungardas.com"
   },
+  "bugs": {
+    "url": "https://github.com/sungardas/particles-enhanced-snapshots/issues"
+  },
+  "homepage": "https://github.com/sungardas/particles-enhanced-snapshots",
   "repository": {
     "type": "git",
     "url": "https://github.com/sungardas/particles-enhanced-snapshots.git"
   },
   "license": "Apache-2.0",
   "keywords": [
-    "condensation-particles"
+    "condensation-particles",
+    "condensation",
+    "cloudformation",
+    "cloud",
+    "formation",
+    "aws",
+    "snapshots",
+    "ebs",
+    "s3"
   ],
   "dependencies": {
-    "condensation": "^0.4.9",
-    "config": "^1.16.0",
-    "git-rev-sync": "^1.4.0",
-    "gulp": "^3.9.0",
-    "particles-common-core": "^0.3.5",
-    "particles-ec2": "^0.2.9"
+    "condensation": "^0.5.5",
+    "config": "^1.20.1",
+    "git-rev-sync": "^1.6.0",
+    "gulp": "^3.9.1",
+    "particles-core": "^0.4.3",
+    "particles-ec2": "^0.2.11"
+  },
+  "devDependencies": {
+    "condensation-particle-tests": "^0.5.1",
+    "mocha": "^2.4.5"
   }
 }

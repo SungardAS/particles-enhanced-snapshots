@@ -2,7 +2,7 @@
   TemplateDescription=(partial 'template_description_with_vpc')
 }}
 
-  {{set "minimal_stack"}}
+  {{set "minimal_stack_mp"}}
 
   {{parameter "vpc_id" logicalId="VpcId" default=""}}
   {{condition "m:core" "is_populated" logicalId="VpcIdIsPopulated" parameterLogicalId="VpcId"}}
@@ -25,7 +25,7 @@
   }}
 
   {{
-    resource 'instance' logicalId="Instance"
+    resource 'instance_mp' logicalId="Instance"
     nameTagLogicalId="NameTag"
     imageIdLogicalId="ImageId"
     keyNameLogicalId="KeyName"

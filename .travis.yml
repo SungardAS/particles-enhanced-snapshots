@@ -1,0 +1,24 @@
+language: node_js
+node_js:
+- 5
+- 4
+- 0.12
+matrix:
+  include:
+  - node_js: 6
+    env: DEPLOY=true
+after_success: if [[ $DEPLOY == "true" ]] ; then ./node_modules/.bin/gulp condensation:deploy
+  ; else echo "no deploy" ; fi
+env:
+  global:
+  - secure: XmNJOlPP5MYUOI2PhDe5+xMWJqH1/3Um7IKOBhooZtliSEcXbm6jnHwS9ngYpIG//jJbzOwGifbhDb55cpqaA/qNtI//enQEYD1wPHcYP1cBO8fQAYRtfSrRXIsp+kgqaFzo6FT2Jv6b8KfeHlmNqFGwX3c3cxN0SQAXTTCryT9QietfCSQo+UKeMVCkdl93zF9/ikHVahE1qNeAzA8/kemY/YwzhYjpnty1VxgPI7KWHPlTRMjFKTeYFtDb4hN2JXqRoazE0HtpU0hODR0Lc2G0yRVUo6nc17YHnIzqZq4P5dZZrtvrrK7Etjhu9/XWRRY8Npc8KfDxd2Gb83vruvvWhIiuBnbfG+Abvf2U8W9wA7eD4j7Q/zCaNjz1HmOuSsQJSOH8HK0GnvuCKWVAGbLY6YAHUp+WPh+Iv0OjXympufKL/yoXZnmCCs6/WlNFVS2jBrZBV3Qry2bN/sU9vS6pN4z1TMFKcoH4SEt1kFnMwhiOtpGmBpf1Z1zkFEAFst1dXyDFLfkSu2MBE/Euq3mG3QZRUcXZ1R/5mXF94ZmWeeQytM6KHPK/iyFV23kvXVAuiyRgEhic6PIYZc0tE9TeP1eGfhcI2w9KM/xOEKDkzRnXR4huZOd4LGL1uApSe15ookXwj0LiE7mru3fpiz8VYhRSSS0JlY4dlfEuVvk=
+  - secure: Bi/zX3sOP82DTZEEKo9YtccUvV29ZjVB1LL3qJPDWiw8PemavIFOr1+lnEPJ/rGN4bD2dF7QpnjgNt2fiRz7FxhnWtDEamutnVibgcZq/IyXNTdHhlOHsM+h3UudEmXS2GB5YBTEzpjpIJ8mQBpH2pB6HzJGYCWwgYPE82sSYYpFEkTClIViQda0uS/Yk8gS8wb7Megu2i06+AV8H34t99fXOM8tdVnFIDgwgab8gcQ9fYwFBdaCNNM/5LMQ4BTmoT9Ofv9kgC5unjX/4jEEyMvHGhniGzeWnHylgwSSMolu5197ptc0iudMsFuL+ZxAgucnMVjuaGKk5VLSne9oVOH50iZA5na+ZdkM1mvrZ48xBMNTCNbBtdIqaqRWfBXXg3F7fe+xF8Wi9dgmc+iWYJMAyOgeLYO2VCp1T+6+7VIP7clqPvX0qnglqMIeO1Ql/lzLpzPScgcx5ph+EaR82VJ1W8Uc13JSvoE3WmppXVx0VOvUHQo24IphSWDvv8OeWJlhVuv5v3+usp8SYO2l5rnuTw1j76U1AI74XydhGvsKe0uCEF/6cEP0qjF3o4W++0Lru/VL/Mwc52uBt/KJSKcfYV1GHOGgvnO3eMVT5sh8QWybXabV/GbO0WGEx5baylJHH4Pups3r9n6pQfqlkptTfONsdDgMK5W3MT0RKS4=
+deploy:
+  provider: npm
+  email: as.us.labs@sungardas.com
+  api_key:
+    secure: zBcqLS6++pm3Eu72ADgn65aZxw/Y1Mzn3GmeEgELy+8NlkbHadc2oPLKUh9G8DReO/Y71Lbr5ve3fexMcHPbw4bMW/dxZmMEhgQHshguC2S314IM0On05MFsSPO+gS/XhuyW5ZnWjM9azdLgC7sZJvKUpsyDxARpCdZZQvfc4C2PEJd4ooUe6VuT6l8xbE2ljjAPTglzSm+WL8zpEkoxaa6iXi4BGLO0wCeixdKJ5k7S2nryAxa2E1rB8UKILgsJk2Ilwo+qT16UJhkPiMxS3ctchy8wDY4mBW1QP2u8k+G2KAXbXFnVvk4VRhO6cj8VL1PGFGC8y3XU1uBs0IP3HSFbUaOl70PEoEq3m5C9fIbvjLXLCU14SHc5b0JLSvhGquOrialeyq8oEynD26KTJw/YYthiWDTo8hHb94plqHAVLB17ett86JyKsUJvuRdtx4AttsXaCNYZgTyyxqufGVO47nVdeC5ii64jj6EeOL0RhF9GkTjMwNBZNuboSVD7zdaa1M6oACJ5M49CFCeWpSTsWNYqIL/gvpK3MtrG6NA7wxnwiNYW9NCYMSpsv/3wfXuXxKeqSvuyaId0kNo8wuvOhi8YjgeqmgzJpyS9WtJsrfYiobFvyegur+xVQ2iiGBXZS6D89v+v73nR5y7nKsvrMZnYQZEkRCh5mN/1Ig4=
+  on:
+    tags: true
+    repo: SungardAS/particles-enhanced-snapshots
+    node: 6

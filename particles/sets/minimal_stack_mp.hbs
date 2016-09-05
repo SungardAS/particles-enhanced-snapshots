@@ -7,18 +7,14 @@ ingressPortsSSH:
 ---
 
   {{parameter "key_name" logicalId="KeyName"}}
-  {{parameter "image_id" "base" logicalId="ImageId"}}
   {{parameter "instance_type" logicalId="InstanceType"}}
   {{parameter "name_tag" logicalId="NameTag"}}
   {{parameter "volume" logicalId="VolumeSize"}}
   {{parameter "iops" logicalId="VolumeIOps"}}
+  {{mapping "ami_regions" logicalId="RegionMap"}}
   {{parameter "ssh_location" logicalId="SshLocation"}}
-  {{parameter "role_select" logicalId="RoleSelect"}}
 
-  {{condition "defined_role" logicalId="DefinedRole"
-   roleSelectLogicalId="RoleSelect"}}
-  
-  {{parameter "m:core" "cidr_range"
+   {{parameter "m:core" "cidr_range"
     logicalId="SourceCIDR"
     allowedPattern="(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
     maxLength="18"
@@ -26,24 +22,16 @@ ingressPortsSSH:
     description="The IP address range that can be used to access the Enhanced Snapshots instance over HTTP(80) and HTTPS(443).For security considerations 0.0.0.0/0 is not recommended, please restrict to a smaller IP range.  x.x.x.x/x format "
     constraintDescription="must be a valid CIDR range formatted as x.x.x.x/x"
   }}
- 
 
-   {{
-  resource 'instanceprofile' logicalId="InstanceProfileEsAdmin"
-  roleSelectLogicalId="RoleSelect"
-  definedRoleLogicalId="DefinedRole"
-  }}
-  {{resource 'role' logicalId="EsAdmin"
-	 definedRoleLogicalId="DefinedRole"}}
-  {{resource 'managedpolicy' logicalId="ManagedPolicy"
-    definedRoleLogicalId="DefinedRole"}} 
 
-  {{set "m:core" "true_false" parameterLogicalId="CreateSecurityRules" default="true"}}
+   {{resource 'instanceprofile_mp' logicalId="InstanceProfileEsAdmin"}}
+  {{resource 'role' logicalId="EsAdmin"}}
+  {{resource 'managedpolicy' logicalId="ManagedPolicy"}}
+
   {{#each ingressPortsSSH}}
     {{
       resource "m:core" "base"
       type="AWS::EC2::SecurityGroupIngress"
-      condition="CreateSecurityRulesIsTrueCondition"
       logicalId=(concat "SecurityGroupIngress" this)
       properties=(
         partial "security_group_ingress_properties"
@@ -59,7 +47,6 @@ ingressPortsSSH:
     {{
       resource "m:core" "base"
       type="AWS::EC2::SecurityGroupIngress"
-      condition="CreateSecurityRulesIsTrueCondition"
       logicalId=(concat "SecurityGroupIngress" this)
       properties=(
         partial "security_group_ingress_properties"

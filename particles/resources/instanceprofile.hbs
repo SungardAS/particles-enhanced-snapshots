@@ -1,0 +1,11 @@
+{{#resource}}
+         "Type": "AWS::IAM::InstanceProfile",
+	 "Properties": {
+            "Path": "/",
+    "Roles":{
+	"Fn::If" : [
+    	"DefinedRole",
+    	[{"Ref": "EsAdmin" }],
+  	[{"Ref": "{{roleSelectLogicalId}}" }]]}
+     }
+{{/resource}}
