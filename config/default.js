@@ -7,8 +7,7 @@ var regions = [
   'eu-west-1',
   'eu-central-1',
   'ap-northeast-1',
-  // TODO: Cannot use until AMI list is updated
-  //'ap-northeast-2',
+  'ap-northeast-2',
   'ap-southeast-1',
   'ap-southeast-2',
   'sa-east-1'
