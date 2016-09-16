@@ -2,16 +2,15 @@ var gitrev = require('git-rev-sync');
 
 var regions = [
   'us-east-1',
-//  'us-west-1',
-//  'us-west-2',
-//  'eu-west-1',
-//  'eu-central-1',
-//  'ap-northeast-1',
-  // TODO: Cannot use until AMI list is updated
-  //'ap-northeast-2',
-//  'ap-southeast-1',
-//  'ap-southeast-2',
-//  'sa-east-1'
+  'us-west-1',
+  'us-west-2',
+  'eu-west-1',
+  'eu-central-1',
+  'ap-northeast-1',
+  'ap-northeast-2',
+  'ap-southeast-1',
+  'ap-southeast-2',
+  'sa-east-1'
 ];
 
 var buckets = [];
@@ -33,7 +32,7 @@ regions.forEach(function(regionName) {
   buckets.push({
     aws: {
       region: regionName,
-      bucket: '1yuratestt.'+regionName
+      bucket: 'condensation-particles.'+regionName
     },
     prefix: 'particles-enhanced-snapshots/'+versionPath,
     clean: true,
