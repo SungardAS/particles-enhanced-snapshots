@@ -34,5 +34,10 @@
     subnetId='{"Fn::If": ["DefinedVpcAndSubnet", {"Ref": "SubnetId"}, {"Ref": "AWS::NoValue"}]}'
   }}
 
+  {{
+    resource 'elastic_ip' logicalId="ElasticIP"
+    instanceLogicalId="Instance"
+    definedEIPLogicalId="DefinedEIP"
+  }}
 
 {{/layout}}

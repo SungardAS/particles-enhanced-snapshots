@@ -2,6 +2,14 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "This template was built to run in us-east-1 and will create resources to run enhanced-snapshots (https://github.com/sungardas/enhanced-snapshots) in a pre-configured VPC and Subnet. Templates for other regions can be found at https://github.com/sungardas/particle-enhanced-snapshots\n",
   "Conditions": {
+    "DefinedEIP": {
+      "Fn::Equals": [
+        {
+          "Ref": "ElasticIpUsage"
+        },
+        "true"
+      ]
+    },
     "DefinedRole": {
       "Fn::Equals": [
         {
@@ -199,6 +207,25 @@
       "MinLength": "3",
       "Description": "[required] Use your previously created bucket name for sdfs data or leave default value. Please, follow Amazon S3 Bucket Naming Requirements.",
       "ConstraintDescription": "Value must be not null or use default name - enhancedsnapshots "
+    },
+    "EIP": {
+      "Type": "String",
+      "Default": "0.0.0.0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})",
+      "MaxLength": "15",
+      "Description": "[optional] Elastic IP",
+      "ConstraintDescription": "must be a valid IP of the form x.x.x.x"
+    },
+    "ElasticIpUsage": {
+      "Type": "String",
+      "Default": "false",
+      "AllowedValues": [
+        "true",
+        "false"
+      ],
+      "MaxLength": "5",
+      "MinLength": "4",
+      "ConstraintDescription": "[true|false]"
     },
     "SourceCIDR": {
       "Type": "String",
@@ -712,6 +739,19 @@
             }
           }
         ]
+      }
+    },
+    "ElasticIP": {
+      "Type": "AWS::EC2::EIPAssociation",
+      "DependsOn": "Instance",
+      "Condition": "DefinedEIP",
+      "Properties": {
+        "InstanceId": {
+          "Ref": "Instance"
+        },
+        "EIP": {
+          "Ref": "EIP"
+        }
       }
     }
   }
