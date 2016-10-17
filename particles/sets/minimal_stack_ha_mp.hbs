@@ -44,7 +44,7 @@ publicSubnet:
   {{/each}}
 
   {{parameter "ssl_certificate_arn" logicalId="SslCertificateArn"}}
-  {{parameter "vpc_id" logicalId="VpcId"}}
+  {{parameter "vpc_id" logicalId="VpcId" description="[required] VPC to create the instance in."}}
 
   {{parameter "m:core" "cidr_range"
     logicalId="SourceCIDR"

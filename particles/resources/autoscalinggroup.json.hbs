@@ -30,7 +30,18 @@
           {
             "Key" : "Name",
             "Value" : {
-              "Ref" : "{{clusterNameLogicalId}}"
+                "Fn::Join": [
+                    "",
+                    [
+                    {
+                        "Ref": "{{nameTagLogicalId}}"
+                    },
+                    "-",
+                    {
+                        "Ref": "{{clusterNameLogicalId}}"
+                    }
+                    ]
+                ]
             },
             "PropagateAtLaunch" : "true"
           }
