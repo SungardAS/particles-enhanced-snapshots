@@ -1,0 +1,11 @@
+{{#resource}}
+       "Type" : "AWS::EC2::VPCGatewayAttachment",
+       "Properties" : {
+         "VpcId" : {
+           "Ref" : "{{vpcLogicalId}}"
+         },
+         "InternetGatewayId" : {
+           "Ref" : "{{internetGatewayLogicalId}}"
+         }
+       }
+{{/resource}}

@@ -1,0 +1,54 @@
+{{#layout
+  TemplateDescription=(partial 'template_description_ha')
+}}
+  {{set "minimal_stack_ha_mp"}}
+
+  {{
+    resource 'security_group'
+    logicalId="SecurityGroup"
+    nameTagLogicalId="NameTag"
+    vpcId='{"Ref": "VpcId"}'
+  }}
+
+  {{
+    resource 'security_group'
+    logicalId="PrivateSecurityGroup"
+    nameTagLogicalId="NameTag"
+    vpcId='{"Ref": "VpcId"}'
+  }}
+
+  {{
+    resource 'sns_topic'
+    logicalId="SnsTopic"
+    clusterNameLogicalId="ClusterName"
+  }}
+
+  {{
+    resource 'launchconfiguration'
+    logicalId="LaunchConfiguration"
+    imageId='{ "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "ImageID"]}'
+    keyNameLogicalId="KeyName"
+    instanceTypeLogicalId="InstanceType"
+    autoScalingGroupLogicalId="AutoScalingGroup"
+    privateSecurityGroupLogicalId="PrivateSecurityGroup"
+  }}
+
+  {{
+    resource 'elasticloadbalancer'
+    logicalId="ElasticLoadBalancer"
+    subnets='[ {"Ref": "PublicSubnet1"}, {"Ref": "PublicSubnet2"} ]'
+    securityGroupLogicalId="SecurityGroup"
+    sslCertificateArnLogicalId="SslCertificateArn"
+    clusterNameLogicalId="ClusterName"
+  }}
+
+  {{
+    resource 'autoscalinggroup'
+    logicalId="AutoScalingGroup"
+    elbLogicalId="ElasticLoadBalancer"
+    vpcZoneIdentifier='[ {"Ref": "PrivateSubnet1"}, {"Ref": "PrivateSubnet2"} ]'
+    launchConfigurationLogicalId="LaunchConfiguration"
+    clusterNameLogicalId="ClusterName"
+    clusterSize="1"
+  }}
+{{/layout}}

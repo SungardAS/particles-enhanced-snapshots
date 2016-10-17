@@ -1,0 +1,237 @@
+---
+ingressPorts:
+  - 443
+  - 80
+ingressPortsSSH:
+  - 22
+privateIngressPorts:
+  - 22
+  - 80
+  - 443
+  - 6442
+privateRoute:
+  - 1
+  - 2
+privateRouteTable:
+  - 1
+  - 2
+elasticIp:
+  - 1
+  - 2
+natGateway:
+  - 1
+  - 2
+privateRouteTableAssoc:
+  - 1
+  - 2
+publicRouteTableAssoc:
+  - 1
+  - 2
+---
+
+  {{parameter "key_name" logicalId="KeyName"}}
+  {{parameter "image_id" "base" logicalId="ImageId"}}
+  {{parameter "instance_type" logicalId="InstanceType"}}
+  {{parameter "name_tag" logicalId="NameTag"}}
+  {{parameter "volume" logicalId="VolumeSize"}}
+  {{parameter "iops" logicalId="VolumeIOps"}}
+  {{parameter "ssh_location" logicalId="SshLocation"}}
+  {{parameter "role_select" logicalId="RoleSelect"}}
+  {{parameter "bucket_name" logicalId="BucketName"}}
+  {{parameter "cluster_name" logicalId="ClusterName"}}
+
+  {{parameter "m:core" "cidr_range"
+    logicalId="VPCCIDR"
+    allowedPattern="(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    maxLength="18"
+    minLength="9"
+    default="10.0.0.0/16"
+    description="[Required]CIDR address of VPC will be created for infrastructure"
+    constraintDescription="must be a valid CIDR range formatted as x.x.x.x/x"
+  }}
+
+
+  {{parameter "private_subnet_ids" logicalId="PrivateSubnetIds"}}
+  {{parameter "public_subnet_ids" logicalId="PublicSubnetIds"}}
+  {{parameter "ssl_certificate_arn" logicalId="SslCertificateArn"}}
+
+
+  {{
+    condition "defined_role"
+    logicalId="DefinedRole"
+    roleSelectLogicalId="RoleSelect"
+  }}
+
+  {{parameter "m:core" "cidr_range"
+    logicalId="SourceCIDR"
+    allowedPattern="(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    maxLength="18"
+    minLength="9"
+    description="The IP address range that can be used to access the Enhanced Snapshots instances over HTTP(80) and HTTPS(443).For security considerations 0.0.0.0/0 is not recommended, please restrict to a smaller IP range.  x.x.x.x/x format "
+    constraintDescription="must be a valid CIDR range formatted as x.x.x.x/x"
+  }}
+
+  {{
+    resource 'instanceprofile' logicalId="InstanceProfileEsAdmin"
+    roleSelectLogicalId="RoleSelect"
+    definedRoleLogicalId="DefinedRole"
+  }}
+
+  {{
+    resource 'role' logicalId="EsAdmin"
+    definedRoleLogicalId="DefinedRole"
+  }}
+
+  {{
+    resource 'managedpolicy' logicalId="ManagedPolicy"
+    definedRoleLogicalId="DefinedRole"
+  }}
+
+  {{set "m:core" "true_false" parameterLogicalId="CreateSecurityRules" default="true"}}
+
+  {{#each ingressPortsSSH}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::SecurityGroupIngress"
+      condition="CreateSecurityRulesIsTrueCondition"
+      logicalId=(concat "SecurityGroupIngress" this)
+      properties=(
+        partial "security_group_ingress_properties"
+        cidrLogicalId="SshLocation"
+        securityGroupId='{"Fn::GetAtt": ["SecurityGroup","GroupId"]}'
+        fromPort=this
+        toPort=this
+      )
+    }}
+  {{/each}}
+
+  {{#each ingressPorts}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::SecurityGroupIngress"
+      condition="CreateSecurityRulesIsTrueCondition"
+      logicalId=(concat "SecurityGroupIngress" this)
+      properties=(
+        partial "security_group_ingress_properties"
+        cidrLogicalId="SourceCIDR"
+        securityGroupId='{"Fn::GetAtt": ["SecurityGroup","GroupId"]}'
+        fromPort=this
+        toPort=this
+      )
+    }}
+  {{/each}}
+
+  {{#each privateIngressPorts}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::SecurityGroupIngress"
+      logicalId=(concat "PrivateSecurityGroupIngress" this)
+      properties=(
+        partial "security_group_ingress_properties"
+        cidr="0.0.0.0/0"
+        securityGroupId='{"Fn::GetAtt": ["PrivateSecurityGroup","GroupId"]}'
+        fromPort=this
+        toPort=this
+      )
+    }}
+  {{/each}}
+
+  {{#each privateRouteTable}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::RouteTable"
+      logicalId=(concat "PrivateRouteTable" this)
+      properties=(
+        partial "routetable_properties"
+        vpcLogicalId="VPC"
+      )
+    }}
+  {{/each}}
+
+  {{#each elasticIp}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::EIP"
+      logicalId=(concat "ElasticIp" this)
+      properties='{"Domain" : "vpc"}'
+    }}
+  {{/each}}
+
+  {{#each natGateway}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::NatGateway"
+      logicalId=(concat "NatGateway" this)
+      dependsOn=(concat "ElasticIp" this)
+      properties=(
+        partial "natgateway_properties"
+        elasticIpLogicalId=(concat "ElasticIp" this)
+        publicSubnetLogicalId=(concat "PublicSubnet" this)
+      )
+    }}
+  {{/each}}
+
+  {{
+    resource "m:core" "base"
+    type="AWS::EC2::RouteTable"
+    logicalId="PublicRouteTable"
+    properties=(
+        partial "routetable_properties"
+        vpcLogicalId="VPC"
+    )
+  }}
+
+  {{
+    resource "m:core" "base"
+    type="AWS::EC2::Route"
+    dependsOn="GatewayToInternet"
+    logicalId="PublicRoute"
+    properties=(
+        partial "route_properties"
+        routeTableLogicalId="PublicRouteTable"
+        desinationCidr="0.0.0.0/0"
+        internetGatewayLogicalId="InternetGateway"
+    )
+  }}
+
+  {{#each privateRoute}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::Route"
+      logicalId=(concat "PrivateRoute" this)
+      properties=(
+        partial "route_properties"
+        routeTableLogicalId=(concat "PrivateRouteTable" this)
+        desinationCidr="0.0.0.0/0"
+        natGatewayLogicalId=(concat "NatGateway" this)
+      )
+    }}
+  {{/each}}
+
+  {{#each privateRouteTableAssoc}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::SubnetRouteTableAssociation"
+      logicalId=(concat "PrivateSubnetRouteTableAssociation" this)
+      properties=(
+        partial "routetableassociation_properties"
+        subnetLogicalId=(concat "PrivateSubnet" this)
+        routeTableLogicalId=(concat "PrivateRouteTable" this)
+      )
+    }}
+  {{/each}}
+
+  {{#each publicRouteTableAssoc}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::SubnetRouteTableAssociation"
+      logicalId=(concat "PublicSubnetRouteTableAssociation" this)
+      properties=(
+        partial "routetableassociation_properties"
+        subnetLogicalId=(concat "PublicSubnet" this)
+        routeTableLogicalId="PublicRouteTable"
+      )
+    }}
+  {{/each}}
+
+  {{set 'module:particles-ec2' 'security_group_output_all' securityGroupLogicalId="SecurityGroup"}}

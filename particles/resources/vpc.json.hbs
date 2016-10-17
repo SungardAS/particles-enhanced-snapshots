@@ -1,0 +1,11 @@
+{{#resource}}
+      "Type" : "AWS::EC2::VPC",
+      "Properties" : {
+        "CidrBlock": {
+          "Ref": "{{vpcCidr}}"
+        },
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "InstanceTenancy": "default"
+      }
+{{/resource}}

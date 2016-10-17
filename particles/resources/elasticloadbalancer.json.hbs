@@ -1,0 +1,48 @@
+{{#resource}}
+      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties" : {
+        "Subnets": {{helper "m:core" "propertyValue" subnets}},
+        "SecurityGroups": [
+          {
+            "Ref": "{{securityGroupLogicalId}}"
+          }
+        ],
+        "CrossZone" : "true",
+        "Scheme": "internet-facing",
+        "LoadBalancerName": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "{{clusterNameLogicalId}}"
+              },
+              "-lb"
+            ]
+           ]
+        },
+        "Listeners" : [
+          {
+            "LoadBalancerPort" : "443",
+            "InstancePort" : "443",
+            "InstanceProtocol": "HTTPS",
+            "Protocol" : "HTTPS",
+            "SSLCertificateId": {
+              "Ref": "{{sslCertificateArnLogicalId}}"
+            }
+          },
+          {
+            "LoadBalancerPort" : "22",
+            "InstancePort" : "22",
+            "InstanceProtocol": "TCP",
+            "Protocol" : "TCP"
+          }
+        ],
+        "HealthCheck" : {
+          "Target" : "HTTPS:443/",
+          "HealthyThreshold" : "3",
+          "UnhealthyThreshold" : "5",
+          "Interval" : "30",
+          "Timeout" : "5"
+        }
+      }
+{{/resource}}
