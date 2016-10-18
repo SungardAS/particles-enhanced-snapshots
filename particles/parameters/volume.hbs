@@ -1,7 +1,7 @@
 {{
  parameter "m:core" "base"
   type="Number"
-  description="[Required]Size of Instance EBS volume (in GB). Size can be as small as 8 or higher for large amount of data keys storage"
+  description="[Required]Volume size should be calculated on the basis of 4% of expected backup data size, e.g. for storing 10TB of data it will be required to create instance EBS volume near 400GB"
   minValue="8"
   default="48"
   constraintDescription="Size can be as small as 8 however can be higher to accomodate large size backups"
