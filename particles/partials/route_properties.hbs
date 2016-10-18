@@ -1,0 +1,10 @@
+{
+    "RouteTableId" : { "Ref" : "{{routeTableLogicalId}}" },
+    "DestinationCidrBlock" : "{{desinationCidr}}",
+{{#if natGatewayLogicalId}}
+    "NatGatewayId" : { "Ref" : "{{natGatewayLogicalId}}" }
+{{/if}}
+{{#if internetGatewayLogicalId}}
+    "GatewayId" : { "Ref" : "{{internetGatewayLogicalId}}" }
+{{/if}}
+}

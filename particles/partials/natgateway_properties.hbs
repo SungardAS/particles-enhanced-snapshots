@@ -1,0 +1,11 @@
+{
+      "AllocationId": {
+          "Fn::GetAtt":[
+            "{{elasticIpLogicalId}}",
+            "AllocationId"
+          ]
+        },
+        "SubnetId": {
+          "Ref": "{{publicSubnetLogicalId}}"
+        }
+}

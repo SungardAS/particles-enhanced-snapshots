@@ -1,0 +1,107 @@
+---
+ingressPorts:
+  - 443
+  - 80
+ingressPortsSSH:
+  - 22
+privateIngressPorts:
+  - 22
+  - 80
+  - 443
+  - 6442
+privateSubnet:
+  - 1
+  - 2
+publicSubnet:
+  - 1
+  - 2
+---
+
+  {{parameter "key_name" logicalId="KeyName"}}
+  {{mapping "ami_regions" logicalId="RegionMap"}}
+  {{parameter "instance_type" logicalId="InstanceType"}}
+  {{parameter "name_tag" logicalId="NameTag"}}
+  {{parameter "volume" logicalId="VolumeSize"}}
+  {{parameter "iops" logicalId="VolumeIOps"}}
+  {{parameter "ssh_location" logicalId="SshLocation"}}
+  {{parameter "bucket_name" logicalId="BucketName"}}
+  {{parameter "cluster_name" logicalId="ClusterName"}}
+
+  {{#each privateSubnet}}
+    {{
+      parameter "subnet_id"
+      logicalId=(concat "PrivateSubnet" this)
+      description="[Required] Network for instances"
+    }}
+  {{/each}}
+
+  {{#each publicSubnet}}
+    {{
+      parameter "subnet_id"
+      logicalId=(concat "PublicSubnet" this)
+      description="[Required] Network for Elastic Load Balancer"
+    }}
+  {{/each}}
+
+  {{parameter "ssl_certificate_arn" logicalId="SslCertificateArn"}}
+  {{parameter "vpc_id" logicalId="VpcId" description="[required] VPC to create the instance in."}}
+
+  {{parameter "m:core" "cidr_range"
+    logicalId="SourceCIDR"
+    allowedPattern="(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    maxLength="18"
+    minLength="9"
+    description="The IP address range that can be used to access the Enhanced Snapshots instances over HTTP(80) and HTTPS(443).For security considerations 0.0.0.0/0 is not recommended, please restrict to a smaller IP range.  x.x.x.x/x format "
+    constraintDescription="must be a valid CIDR range formatted as x.x.x.x/x"
+  }}
+
+  {{resource 'instanceprofile_mp' logicalId="InstanceProfileEsAdmin"}}
+  {{resource 'role' logicalId="EsAdmin"}}
+  {{resource 'managedpolicy' logicalId="ManagedPolicy"}}
+
+  {{#each ingressPortsSSH}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::SecurityGroupIngress"
+      logicalId=(concat "SecurityGroupIngress" this)
+      properties=(
+        partial "security_group_ingress_properties"
+        cidrLogicalId="SshLocation"
+        securityGroupId='{"Fn::GetAtt": ["SecurityGroup","GroupId"]}'
+        fromPort=this
+        toPort=this
+      )
+    }}
+  {{/each}}
+
+  {{#each ingressPorts}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::SecurityGroupIngress"
+      logicalId=(concat "SecurityGroupIngress" this)
+      properties=(
+        partial "security_group_ingress_properties"
+        cidrLogicalId="SourceCIDR"
+        securityGroupId='{"Fn::GetAtt": ["SecurityGroup","GroupId"]}'
+        fromPort=this
+        toPort=this
+      )
+    }}
+  {{/each}}
+
+  {{#each privateIngressPorts}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::SecurityGroupIngress"
+      logicalId=(concat "PrivateSecurityGroupIngress" this)
+      properties=(
+        partial "security_group_ingress_properties"
+        cidr="0.0.0.0/0"
+        securityGroupId='{"Fn::GetAtt": ["PrivateSecurityGroup","GroupId"]}'
+        fromPort=this
+        toPort=this
+      )
+    }}
+  {{/each}}
+
+  {{set 'module:particles-ec2' 'security_group_output_all' securityGroupLogicalId="SecurityGroup"}}

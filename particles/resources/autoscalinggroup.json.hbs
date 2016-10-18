@@ -1,0 +1,56 @@
+{{#resource}}
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "LoadBalancerNames": [
+          { "Ref": "{{elbLogicalId}}"}
+        ],
+        "NotificationConfigurations": [
+          {
+            "NotificationTypes": [
+              "autoscaling:EC2_INSTANCE_LAUNCH",
+              "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
+              "autoscaling:EC2_INSTANCE_TERMINATE",
+              "autoscaling:EC2_INSTANCE_TERMINATE_ERROR",
+              "autoscaling:TEST_NOTIFICATION"
+            ],
+            "TopicARN": {
+              "Ref": "SnsTopic"
+            }
+          }
+        ],
+        "HealthCheckType": "ELB",
+        "HealthCheckGracePeriod": "20",
+        "VPCZoneIdentifier": {{helper "m:core" "propertyValue" vpcZoneIdentifier}},
+        "LaunchConfigurationName": {
+          "Ref": "{{launchConfigurationLogicalId}}"
+        },
+        "MinSize": "{{clusterSize}}",
+        "MaxSize": "{{clusterSize}}",
+        "Tags" : [
+          {
+            "Key" : "Name",
+            "Value" : {
+                "Fn::Join": [
+                    "",
+                    [
+                    {
+                        "Ref": "{{nameTagLogicalId}}"
+                    },
+                    "-",
+                    {
+                        "Ref": "{{clusterNameLogicalId}}"
+                    }
+                    ]
+                ]
+            },
+            "PropagateAtLaunch" : "true"
+          }
+        ]
+      },
+      "CreationPolicy": {
+        "ResourceSignal": {
+          "Timeout": "PT15M",
+          "Count": "{{clusterSize}}"
+        }
+      }
+{{/resource}}
