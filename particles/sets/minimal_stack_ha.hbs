@@ -27,6 +27,23 @@ privateRouteTableAssoc:
 publicRouteTableAssoc:
   - 1
   - 2
+listeners:
+-
+  LoadBalancerPort: 443
+  InstancePort: 443
+  InstanceProtocol: HTTPS
+  Protocol: HTTPS
+-
+  LoadBalancerPort: 22
+  InstancePort: 22
+  InstanceProtocol: TCP
+  Protocol: TCP
+healthCheck:
+  Target: HTTPS:443/
+  HealthyThreshold: 3
+  UnhealthyThreshold: 5
+  Interval: 30
+  Timeout: 5
 ---
 
   {{parameter "key_name" logicalId="KeyName"}}
@@ -235,3 +252,11 @@ publicRouteTableAssoc:
     }}
   {{/each}}
 
+  {{
+    resource "m:ec2" "load_balancer"
+    logicalId="ElasticLoadBalancer"
+    scheme='internet-facing'
+    subnets=(ref 'PublicSubnet1')
+  }}
+
+  {{set 'm:vpc' 'security_group/output_all' securityGroupLogicalId="SecurityGroup"}}

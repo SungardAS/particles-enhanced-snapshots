@@ -90,15 +90,6 @@
   }}
 
   {{
-    resource 'elasticloadbalancer'
-    logicalId="ElasticLoadBalancer"
-    subnets='[ {"Ref": "PublicSubnet1"}, {"Ref": "PublicSubnet2"} ]'
-    securityGroupLogicalId="SecurityGroup"
-    sslCertificateArnLogicalId="SslCertificateArn"
-    clusterNameLogicalId="ClusterName"
-  }}
-
-  {{
     resource 'autoscalinggroup'
     logicalId="AutoScalingGroup"
     elbLogicalId="ElasticLoadBalancer"
