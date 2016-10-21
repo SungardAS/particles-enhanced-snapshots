@@ -43,6 +43,7 @@
                       "export CUSTOM_BUCKET_NAME=\"$CUSTOM_BUCKET_NAME\"",
                       "\\nexport STACK_NAME=\"$STACK_NAME\"",
                       "\\nexport CLUSTER_ID=\"$CLUSTER_ID\"",
+                      "\\nexport UUID=\"$UUID\"",
                       "\" ",
                       "/etc/init.d/tomcat8"
                     ]
@@ -57,6 +58,9 @@
                   },
                   "STACK_NAME": {
                     "Ref": "AWS::StackName"
+                  },
+                  "UUID": {
+                    "Ref": "UUID"
                   }
                 }
               }

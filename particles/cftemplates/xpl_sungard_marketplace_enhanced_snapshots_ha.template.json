@@ -121,6 +121,13 @@
       "Description": "[required] Enter name of cluster will be created",
       "ConstraintDescription": "You need to specify cluster name (3-20 chars)"
     },
+    "UUID": {
+      "Type": "String",
+      "AllowedPattern": "(^$)|(^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)",
+      "MaxLength": "36",
+      "Description": "[optional] UUID - unique id of system, it can be used to integrate with other systems",
+      "ConstraintDescription": "must be a valid UUID"
+    },
     "PrivateSubnet1": {
       "Type": "AWS::EC2::Subnet::Id",
       "Description": "[Required] Network for instances"
@@ -609,6 +616,7 @@
                       "export CUSTOM_BUCKET_NAME=\"$CUSTOM_BUCKET_NAME\"",
                       "\\nexport STACK_NAME=\"$STACK_NAME\"",
                       "\\nexport CLUSTER_ID=\"$CLUSTER_ID\"",
+                      "\\nexport UUID=\"$UUID\"",
                       "\" ",
                       "/etc/init.d/tomcat8"
                     ]
@@ -623,6 +631,9 @@
                   },
                   "STACK_NAME": {
                     "Ref": "AWS::StackName"
+                  },
+                  "UUID": {
+                    "Ref": "UUID"
                   }
                 }
               }

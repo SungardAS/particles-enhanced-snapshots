@@ -23,6 +23,10 @@
           "001": {
             "command": "sed -i \"/export PATH/i export CUSTOM_BUCKET_NAME=\"$CUSTOM_BUCKET_NAME\" \" /etc/init.d/tomcat8 ",
             "env": { "CUSTOM_BUCKET_NAME" : {"Ref": "BucketName"} }
+          },
+          "002": {
+            "command": "sed -i \"/export PATH/i export UUID=\"$UUID\" \" /etc/init.d/tomcat8 ",
+            "env": { "UUID" : {"Ref": "UUID"} }
           }
         }
       },
