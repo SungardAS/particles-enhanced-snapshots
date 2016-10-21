@@ -64,5 +64,4 @@ ingressPortsSSH:
     }}
   {{/each}}
      
-  {{set 'module:particles-ec2' 'instance_output_all' instanceLogicalId="Instance"}}
-  {{set 'module:particles-ec2' 'security_group_output_all' securityGroupLogicalId="SecurityGroup"}}
+  {{set 'module:particles-ec2' 'instance/output_all' instanceLogicalId="Instance"}}
