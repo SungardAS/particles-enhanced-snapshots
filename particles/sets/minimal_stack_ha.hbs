@@ -158,15 +158,11 @@ healthCheck:
 
   {{#each natGateway}}
     {{
-      resource "m:core" "base"
-      type="AWS::EC2::NatGateway"
+      resource "m:nat-gateway" "nat_gateway"
       logicalId=(concat "NatGateway" this)
       dependsOn=(concat "ElasticIp" this)
-      properties=(
-        partial "natgateway_properties"
-        elasticIpLogicalId=(concat "ElasticIp" this)
-        publicSubnetLogicalId=(concat "PublicSubnet" this)
-      )
+      AllocationId=(concat '{"Fn::GetAtt":["ElasticIp' this '","AllocationId"]}')
+      SubnetId=(ref (concat "PublicSubnet" this))
     }}
   {{/each}}
 
@@ -175,56 +171,37 @@ healthCheck:
     VpcId=(ref "VPC")
   }}
 
-  {{
-    resource "m:core" "base"
-    type="AWS::EC2::Route"
+  {{resource "m:vpc" "route"
     dependsOn="GatewayToInternet"
     logicalId="PublicRoute"
-    properties=(
-        partial "route_properties"
-        routeTableLogicalId="PublicRouteTable"
-        desinationCidr="0.0.0.0/0"
-        internetGatewayLogicalId="InternetGateway"
-    )
+    RouteTableId="PublicRouteTable"
+    DesinationCidrBlock="0.0.0.0/0"
+    GatewayId="InternetGateway"
   }}
 
   {{#each privateRoute}}
-    {{
-      resource "m:core" "base"
-      type="AWS::EC2::Route"
+    {{resource "m:vpc" "route"
       logicalId=(concat "PrivateRoute" this)
-      properties=(
-        partial "route_properties"
-        routeTableLogicalId=(concat "PrivateRouteTable" this)
-        desinationCidr="0.0.0.0/0"
-        natGatewayLogicalId=(concat "NatGateway" this)
-      )
+      RouteTableId=(concat "PrivateRouteTable" this)
+      DesinationCidrBlock="0.0.0.0/0"
+      NatGatewayId=(concat "NatGateway" this)
     }}
   {{/each}}
 
   {{#each privateRouteTableAssoc}}
-    {{
-      resource "m:core" "base"
-      type="AWS::EC2::SubnetRouteTableAssociation"
+    {{resource "m:vpc" "subnet/route_table_association"
       logicalId=(concat "PrivateSubnetRouteTableAssociation" this)
-      properties=(
-        partial "routetableassociation_properties"
-        subnetLogicalId=(concat "PrivateSubnet" this)
-        routeTableLogicalId=(concat "PrivateRouteTable" this)
-      )
+      SubnetId=(concat "PrivateSubnet" this)
+      RouteTableId=(concat "PrivateRouteTable" this)
     }}
   {{/each}}
 
   {{#each publicRouteTableAssoc}}
     {{
-      resource "m:core" "base"
-      type="AWS::EC2::SubnetRouteTableAssociation"
+      resource "m:vpc" "subnet/route_table_association"
       logicalId=(concat "PublicSubnetRouteTableAssociation" this)
-      properties=(
-        partial "routetableassociation_properties"
-        subnetLogicalId=(concat "PublicSubnet" this)
-        routeTableLogicalId="PublicRouteTable"
-      )
+      SubnetLogicalId=(concat "PublicSubnet" this)
+      RouteTableId="PublicRouteTable"
     }}
   {{/each}}
 
