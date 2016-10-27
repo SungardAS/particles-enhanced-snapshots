@@ -151,11 +151,8 @@ healthCheck:
   {{/each}}
 
   {{#each elasticIp}}
-    {{
-      resource "m:core" "base"
-      type="AWS::EC2::EIP"
+    {{resource "m:nat-gateway" "eip"
       logicalId=(concat "ElasticIp" this)
-      properties='{"Domain" : "vpc"}'
     }}
   {{/each}}
 
