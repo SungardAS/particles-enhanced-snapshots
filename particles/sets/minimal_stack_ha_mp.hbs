@@ -111,10 +111,9 @@ healthCheck:
     }}
   {{/each}}
 
-  {{
-    resource 'sns_topic'
+  {{resource 'sns_topic'
     logicalId="SnsTopic"
-    clusterNameLogicalId="ClusterName"
+    clusterNameLogicalId=(ref "ClusterName")
   }}
 
   {{

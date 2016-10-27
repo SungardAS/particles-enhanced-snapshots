@@ -15,25 +15,23 @@
     Tags=(ref "NameTag")
   }}
 
-  {{
-    resource 'launchconfiguration'
+  {{resource 'launchconfiguration'
     logicalId="LaunchConfiguration"
     imageId='{ "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "ImageID"]}'
-    keyNameLogicalId="KeyName"
-    instanceTypeLogicalId="InstanceType"
+    keyNameLogicalId=(ref "KeyName")
+    instanceTypeLogicalId=(ref "InstanceType")
     autoScalingGroupLogicalId="AutoScalingGroup"
-    privateSecurityGroupLogicalId="PrivateSecurityGroup"
+    privateSecurityGroupLogicalId=(ref "PrivateSecurityGroup")
   }}
 
-  {{
-    resource 'autoscalinggroup'
+  {{resource 'autoscalinggroup'
     logicalId="AutoScalingGroup"
-    elbLogicalId="ElasticLoadBalancer"
+    elbLogicalId=(ref "ElasticLoadBalancer")
     vpcZoneIdentifier='[ {"Ref": "PrivateSubnet1"}, {"Ref": "PrivateSubnet2"} ]'
-    launchConfigurationLogicalId="LaunchConfiguration"
-    clusterNameLogicalId="ClusterName"
+    launchConfigurationLogicalId=(ref "LaunchConfiguration")
+    clusterNameLogicalId=(ref "ClusterName")
     clusterSize="1"
-    nameTagLogicalId="NameTag"
+    nameTagLogicalId=(ref "NameTag")
   }}
 
 {{/layout}}

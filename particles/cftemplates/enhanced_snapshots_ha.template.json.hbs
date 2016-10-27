@@ -52,38 +52,33 @@
     VpcId=(ref "VPC")
   }}
 
-  {{
-    resource "m:core" "base"
-    type="AWS::EC2::InternetGateway"
+  {{resource "m:vpc" "internet_gateway"
     logicalId="InternetGateway"
-    properties='{}'
   }}
 
-  {{
-    resource 'vpcgatewayattachment'
+  {{resource 'vpcgatewayattachment'
     logicalId="GatewayToInternet"
-    vpcLogicalId="VPC"
-    internetGatewayLogicalId="InternetGateway"
+    vpcLogicalId=(ref "VPC")
+    internetGatewayLogicalId=(ref "InternetGateway")
   }}
 
-  {{
-    resource 'launchconfiguration'
+  {{resource 'launchconfiguration'
     logicalId="LaunchConfiguration"
-    imageId='{ "Ref": "ImageId" }'
-    keyNameLogicalId="KeyName"
-    instanceTypeLogicalId="InstanceType"
+    imageId=(ref "ImageId")
+    keyNameLogicalId=(ref "KeyName")
+    instanceTypeLogicalId=(ref "InstanceType")
     autoScalingGroupLogicalId="AutoScalingGroup"
-    privateSecurityGroupLogicalId="PrivateSecurityGroup"
+    privateSecurityGroupLogicalId=(ref "PrivateSecurityGroup")
   }}
 
-  {{
-    resource 'autoscalinggroup'
+  {{resource 'autoscalinggroup'
     logicalId="AutoScalingGroup"
-    elbLogicalId="ElasticLoadBalancer"
+    elbLogicalId=(ref "ElasticLoadBalancer")
     vpcZoneIdentifier='[ {"Ref": "PrivateSubnet1"}, {"Ref": "PrivateSubnet2"} ]'
-    launchConfigurationLogicalId="LaunchConfiguration"
-    clusterNameLogicalId="ClusterName"
+    launchConfigurationLogicalId=(ref "LaunchConfiguration")
+    clusterNameLogicalId=(ref "ClusterName")
     clusterSize="1"
-    nameTagLogicalId="NameTag"
+    nameTagLogicalId=(ref "NameTag")
   }}
+
 {{/layout}}

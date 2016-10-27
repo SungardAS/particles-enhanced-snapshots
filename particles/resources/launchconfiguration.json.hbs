@@ -106,17 +106,11 @@
       "Properties": {
         "AssociatePublicIpAddress": "false",
         "ImageId": {{helper "m:core" "propertyValue" imageId}},
-        "KeyName": {
-          "Ref": "{{keyNameLogicalId}}"
-        },
+        "KeyName": {{helper "m:core" "propertyValue" keyNameLogicalId}},
         "SecurityGroups": [
-          {
-            "Ref": "{{privateSecurityGroupLogicalId}}"
-          }
+            {{helper "m:core" "propertyValue" privateSecurityGroupLogicalId}}
         ],
-        "InstanceType": {
-          "Ref": "{{instanceTypeLogicalId}}"
-        },
+        "InstanceType": {{helper "m:core" "propertyValue" instanceTypeLogicalId}},
         "IamInstanceProfile": {
           "Ref": "InstanceProfileEsAdmin"
         },

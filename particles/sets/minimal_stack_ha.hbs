@@ -144,14 +144,9 @@ healthCheck:
   {{/each}}
 
   {{#each privateRouteTable}}
-    {{
-      resource "m:core" "base"
-      type="AWS::EC2::RouteTable"
+    {{resource "m:vpc" "route_table"
       logicalId=(concat "PrivateRouteTable" this)
-      properties=(
-        partial "routetable_properties"
-        vpcLogicalId="VPC"
-      )
+      VpcId=(ref "VPC")
     }}
   {{/each}}
 
@@ -178,14 +173,9 @@ healthCheck:
     }}
   {{/each}}
 
-  {{
-    resource "m:core" "base"
-    type="AWS::EC2::RouteTable"
+  {{resource "m:vpc" "route_table"
     logicalId="PublicRouteTable"
-    properties=(
-        partial "routetable_properties"
-        vpcLogicalId="VPC"
-    )
+    VpcId=(ref "VPC")
   }}
 
   {{
@@ -241,11 +231,9 @@ healthCheck:
     }}
   {{/each}}
 
-
-  {{
-    resource 'sns_topic'
+  {{resource 'sns_topic'
     logicalId="SnsTopic"
-    clusterNameLogicalId="ClusterName"
+    clusterNameLogicalId=(ref "ClusterName")
   }}
 
   {{
