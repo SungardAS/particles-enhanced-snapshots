@@ -3,6 +3,7 @@
             "InstancePort" : "443",
             "InstanceProtocol": "HTTPS",
             "Protocol" : "HTTPS",
+            "PolicyNames": [{{helper "m:core" "propertyValue" policyNames}}],
             "SSLCertificateId": {{helper "m:core" "propertyValue" sslCertificateArnLogicalId}}
           },
           {

@@ -21,8 +21,6 @@ healthCheck:
   UnhealthyThreshold: 5
   Interval: 30
   Timeout: 5
-lbCookieStickinessPolicy:
-  PolicyName: ElasticLoadBalancerLBPolicy
 ---
 
   {{parameter "key_name" logicalId="KeyName"}}
@@ -113,6 +111,11 @@ lbCookieStickinessPolicy:
     }}
   {{/each}}
 
+  {{
+    resource 'sns_topic'
+    logicalId="SnsTopic"
+    clusterNameLogicalId="ClusterName"
+  }}
 
   {{
     resource "m:ec2" "load_balancer"
@@ -121,8 +124,10 @@ lbCookieStickinessPolicy:
     subnets='[ {"Ref": "PublicSubnet1"}, {"Ref": "PublicSubnet2"} ]'
     crossZone='true'
     loadBalancerName='{"Fn::Join": ["",[{"Ref": "ClusterName"},"-lb"]]}'
+    lbCookieStickinessPolicy='[ {"PolicyName": "ESSELBPolicy"} ]'
     listeners=(
       partial 'listener'
+      policyNames="ESSELBPolicy"
       sslCertificateArnLogicalId=(ref "SslCertificateArn")
     )
   }}

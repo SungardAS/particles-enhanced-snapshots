@@ -74,12 +74,6 @@
   }}
 
   {{
-    resource 'sns_topic'
-    logicalId="SnsTopic"
-    clusterNameLogicalId="ClusterName"
-  }}
-
-  {{
     resource 'launchconfiguration'
     logicalId="LaunchConfiguration"
     imageId='{ "Ref": "ImageId" }'
