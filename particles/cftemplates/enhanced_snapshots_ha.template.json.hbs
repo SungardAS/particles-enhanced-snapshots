@@ -7,56 +7,49 @@
 
   {{ set "minimal_stack_ha" }}
 
-  {{
-    resource 'vpc'
+  {{resource "m:vpc" "vpc"
     logicalId="VPC"
-    vpcCidr="VPCCIDR"
+    cidrBlock=(ref "VPCCIDR")
   }}
 
-  {{
-    resource 'security_group'
+  {{resource "m:vpc" "security_group"
     logicalId="SecurityGroup"
-    nameTagLogicalId="NameTag"
-    vpcId='{"Ref": "VPC"}'
+    VpcId=(ref "VPC")
+    Tags=(ref "NameTag")
   }}
 
-  {{
-    resource 'security_group'
+  {{resource "m:vpc" "security_group"
     logicalId="PrivateSecurityGroup"
-    nameTagLogicalId="NameTag"
-    vpcId='{"Ref": "VPC"}'
+    VpcId=(ref "VPC")
+    Tags=(ref "NameTag")
   }}
 
-  {{
-    resource 'subnet'
+  {{resource "m:vpc" "subnet"
     logicalId="PublicSubnet1"
-    vpcLogicalId="VPC"
-    cidrBlock='{ "Fn::Select" : ["0", { "Ref": "PublicSubnetIds" }]}'
-    availabilityZone='{ "Fn::Select" : ["0", { "Fn::GetAZs" : { "Ref" : "AWS::Region" } }]}'
+    CidrBlock='{ "Fn::Select" : ["0", { "Ref": "PublicSubnetIds" }]}'
+    AvailabilityZone='{ "Fn::Select" : ["0", { "Fn::GetAZs" : { "Ref" : "AWS::Region" } }]}'
+    VpcId=(ref "VPC")
   }}
 
-  {{
-    resource 'subnet'
+  {{resource "m:vpc" "subnet"
     logicalId="PublicSubnet2"
-    vpcLogicalId="VPC"
-    cidrBlock='{ "Fn::Select" : ["1", { "Ref": "PublicSubnetIds" }]}'
-    availabilityZone='{ "Fn::Select" : ["1", { "Fn::GetAZs" : { "Ref" : "AWS::Region" } }]}'
+    CidrBlock='{ "Fn::Select" : ["1", { "Ref": "PublicSubnetIds" }]}'
+    AvailabilityZone='{ "Fn::Select" : ["1", { "Fn::GetAZs" : { "Ref" : "AWS::Region" } }]}'
+    VpcId=(ref "VPC")
   }}
 
-  {{
-    resource 'subnet'
+  {{resource "m:vpc" "subnet"
     logicalId="PrivateSubnet1"
-    vpcLogicalId="VPC"
-    cidrBlock='{ "Fn::Select" : ["0", { "Ref": "PrivateSubnetIds" }]}'
-    availabilityZone='{ "Fn::Select" : ["0", { "Fn::GetAZs" : { "Ref" : "AWS::Region" } }]}'
+    CidrBlock='{ "Fn::Select" : ["0", { "Ref": "PrivateSubnetIds" }]}'
+    AvailabilityZone='{ "Fn::Select" : ["0", { "Fn::GetAZs" : { "Ref" : "AWS::Region" } }]}'
+    VpcId=(ref "VPC")
   }}
 
-  {{
-    resource 'subnet'
+  {{resource "m:vpc" "subnet"
     logicalId="PrivateSubnet2"
-    vpcLogicalId="VPC"
-    cidrBlock='{ "Fn::Select" : ["1", { "Ref": "PrivateSubnetIds" }]}'
-    availabilityZone='{ "Fn::Select" : ["1", { "Fn::GetAZs" : { "Ref" : "AWS::Region" } }]}'
+    CidrBlock='{ "Fn::Select" : ["1", { "Ref": "PrivateSubnetIds" }]}'
+    AvailabilityZone='{ "Fn::Select" : ["1", { "Fn::GetAZs" : { "Ref" : "AWS::Region" } }]}'
+    VpcId=(ref "VPC")
   }}
 
   {{

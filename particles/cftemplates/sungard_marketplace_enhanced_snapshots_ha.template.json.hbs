@@ -3,18 +3,16 @@
 }}
   {{set "minimal_stack_ha_mp"}}
 
-  {{
-    resource 'security_group'
+  {{resource "m:vpc" "security_group"
     logicalId="SecurityGroup"
-    nameTagLogicalId="NameTag"
-    vpcId='{"Ref": "VpcId"}'
+    VpcId=(ref "VPC")
+    Tags=(ref "NameTag")
   }}
 
-  {{
-    resource 'security_group'
+  {{resource "m:vpc" "security_group"
     logicalId="PrivateSecurityGroup"
-    nameTagLogicalId="NameTag"
-    vpcId='{"Ref": "VpcId"}'
+    VpcId=(ref "VPC")
+    Tags=(ref "NameTag")
   }}
 
   {{
