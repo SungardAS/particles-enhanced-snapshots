@@ -104,11 +104,11 @@
           }
       },
       "Properties": {
-        "AssociatePublicIpAddress": "false",
+        "AssociatePublicIpAddress": {{associatePublicIpAddress}},
         "ImageId": {{helper "m:core" "propertyValue" imageId}},
         "KeyName": {{helper "m:core" "propertyValue" keyNameLogicalId}},
         "SecurityGroups": [
-            {{helper "m:core" "propertyValue" privateSecurityGroupLogicalId}}
+            {{helper "m:core" "propertyValue" securityGroupLogicalId}}
         ],
         "InstanceType": {{helper "m:core" "propertyValue" instanceTypeLogicalId}},
         "IamInstanceProfile": {

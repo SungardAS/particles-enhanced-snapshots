@@ -5,7 +5,7 @@
   sshLocationLogicalId="SshLocation"
   }}
 
-  {{ set "minimal_stack_ha" }}
+  {{ set "minimal_stack_privatenet_ha" }}
 
   {{resource "m:vpc" "vpc"
     logicalId="VPC"
@@ -68,7 +68,8 @@
     keyNameLogicalId=(ref "KeyName")
     instanceTypeLogicalId=(ref "InstanceType")
     autoScalingGroupLogicalId="AutoScalingGroup"
-    privateSecurityGroupLogicalId=(ref "PrivateSecurityGroup")
+    securityGroupLogicalId=(ref "PrivateSecurityGroup")
+    associatePublicIpAddress="true"
   }}
 
   {{resource 'autoscalinggroup'

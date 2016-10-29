@@ -1,10 +1,16 @@
 {{#layout
   TemplateDescription=(partial 'template_description_ha')
 }}
-  {{set "minimal_stack_ha_mp"}}
+  {{set "minimal_stack_privatenet_ha_mp"}}
 
   {{resource "m:vpc" "security_group"
     logicalId="SecurityGroup"
+    VpcId=(ref "VPC")
+    Tags=(ref "NameTag")
+  }}
+
+  {{resource "m:vpc" "security_group"
+    logicalId="PrivateSecurityGroup"
     VpcId=(ref "VPC")
     Tags=(ref "NameTag")
   }}
@@ -15,14 +21,14 @@
     keyNameLogicalId=(ref "KeyName")
     instanceTypeLogicalId=(ref "InstanceType")
     autoScalingGroupLogicalId="AutoScalingGroup"
-    securityGroupLogicalId=(ref "SecurityGroup")
-    associatePublicIpAddress="true"
+    securityGroupLogicalId=(ref "PrivateSecurityGroup")
+    associatePublicIpAddress="false"
   }}
 
   {{resource 'autoscalinggroup'
     logicalId="AutoScalingGroup"
     elbLogicalId=(ref "ElasticLoadBalancer")
-    vpcZoneIdentifier='[ {"Ref": "PublicSubnet1"}, {"Ref": "PublicSubnet2"} ]'
+    vpcZoneIdentifier='[ {"Ref": "PrivateSubnet1"}, {"Ref": "PrivateSubnet2"} ]'
     launchConfigurationLogicalId=(ref "LaunchConfiguration")
     clusterNameLogicalId=(ref "ClusterName")
     clusterSize="1"

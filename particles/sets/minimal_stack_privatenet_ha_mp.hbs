@@ -5,9 +5,13 @@ ingressPorts:
 ingressPortsSSH:
   - 22
 privateIngressPorts:
+  - 22
+  - 80
+  - 443
   - 6442
-  - 61614
-  - 61616
+privateSubnet:
+  - 1
+  - 2
 publicSubnet:
   - 1
   - 2
@@ -30,13 +34,13 @@ healthCheck:
   {{parameter "cluster_name" logicalId="ClusterName"}}
   {{parameter "uuid" logicalId="UUID"}}
 
-{{
-  parameter "m:core" "base"
-  logicalId="VPCCIDR"
-  type="String"
-  description="[required] VpcCidr"
-  constraintDescription="You need to specify VPCCidr"
-}}
+  {{#each privateSubnet}}
+    {{
+      parameter "subnet_id"
+      logicalId=(concat "PrivateSubnet" this)
+      description="[Required] Network for instances"
+    }}
+  {{/each}}
 
   {{#each publicSubnet}}
     {{
@@ -47,6 +51,7 @@ healthCheck:
   {{/each}}
 
   {{parameter "ssl_certificate_arn" logicalId="SslCertificateArn"}}
+  {{parameter "vpc_id" logicalId="VpcId" description="[required] VPC to create the instance in."}}
 
   {{parameter "m:core" "cidr_range"
     logicalId="SourceCIDR"
@@ -98,8 +103,8 @@ healthCheck:
       logicalId=(concat "PrivateSecurityGroupIngress" this)
       properties=(
         partial "security_group_ingress_properties"
-        cidrLogicalId="VPCCIDR"
-        securityGroupId='{"Fn::GetAtt": ["SecurityGroup","GroupId"]}'
+        cidr="0.0.0.0/0"
+        securityGroupId='{"Fn::GetAtt": ["PrivateSecurityGroup","GroupId"]}'
         fromPort=this
         toPort=this
       )
