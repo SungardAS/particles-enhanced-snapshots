@@ -5,26 +5,10 @@ ingressPorts:
 ingressPortsSSH:
   - 22
 privateIngressPorts:
-  - 22
-  - 80
-  - 443
   - 6442
-privateRoute:
-  - 1
-  - 2
-privateRouteTable:
-  - 1
-  - 2
-elasticIp:
-  - 1
-  - 2
-natGateway:
-  - 1
-  - 2
-privateRouteTableAssoc:
-  - 1
-  - 2
-publicRouteTableAssoc:
+  - 61614
+  - 61616
+publicSubnet:
   - 1
   - 2
 healthCheck:
@@ -64,6 +48,13 @@ healthCheck:
     description="[Required] Existing SSL Certificate ARN"
     logicalId="SslCertificateArn"}}
 
+  {{#each publicSubnet}}
+    {{
+      parameter "subnet_id"
+      logicalId=(concat "PublicSubnet" this)
+      description="[Required] Network for Elastic Load Balancer"
+    }}
+  {{/each}}
 
   {{
     condition "defined_role"
@@ -142,68 +133,6 @@ healthCheck:
         fromPort=this
         toPort=this
       )
-    }}
-  {{/each}}
-
-  {{#each privateRouteTable}}
-    {{resource "m:vpc" "route_table"
-      logicalId=(concat "PrivateRouteTable" this)
-      vpcId=(ref "VPC")
-    }}
-  {{/each}}
-
-  {{#each elasticIp}}
-    {{resource "m:nat-gateway" "eip"
-      logicalId=(concat "ElasticIp" this)
-    }}
-  {{/each}}
-
-  {{#each natGateway}}
-    {{
-      resource "m:nat-gateway" "nat_gateway"
-      logicalId=(concat "NatGateway" this)
-      dependsOn=(concat "ElasticIp" this)
-      allocationId=(concat '{"Fn::GetAtt":["ElasticIp' this '","AllocationId"]}')
-      subnetId=(ref (concat "PublicSubnet" this))
-    }}
-  {{/each}}
-
-  {{resource "m:vpc" "route_table"
-    logicalId="PublicRouteTable"
-    VpcId=(ref "VPC")
-  }}
-
-  {{resource "m:vpc" "route"
-    dependsOn="GatewayToInternet"
-    logicalId="PublicRoute"
-    routeTableId="PublicRouteTable"
-    desinationCidrBlock="0.0.0.0/0"
-    gatewayId="InternetGateway"
-  }}
-
-  {{#each privateRoute}}
-    {{resource "m:vpc" "route"
-      logicalId=(concat "PrivateRoute" this)
-      routeTableId=(concat "PrivateRouteTable" this)
-      desinationCidrBlock="0.0.0.0/0"
-      natGatewayId=(concat "NatGateway" this)
-    }}
-  {{/each}}
-
-  {{#each privateRouteTableAssoc}}
-    {{resource "m:vpc" "subnet/route_table_association"
-      logicalId=(concat "PrivateSubnetRouteTableAssociation" this)
-      subnetId=(concat "PrivateSubnet" this)
-      routeTableId=(concat "PrivateRouteTable" this)
-    }}
-  {{/each}}
-
-  {{#each publicRouteTableAssoc}}
-    {{
-      resource "m:vpc" "subnet/route_table_association"
-      logicalId=(concat "PublicSubnetRouteTableAssociation" this)
-      subnetLogicalId=(concat "PublicSubnet" this)
-      routeTableId="PublicRouteTable"
     }}
   {{/each}}
 

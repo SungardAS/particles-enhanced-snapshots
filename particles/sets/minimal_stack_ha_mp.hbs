@@ -46,7 +46,9 @@ healthCheck:
     }}
   {{/each}}
 
-  {{parameter "ssl_certificate_arn" logicalId="SslCertificateArn"}}
+  {{parameter "m:core" "arn"
+    description="[Required] Existing SSL Certificate ARN"
+    logicalId="SslCertificateArn"}}
 
   {{parameter "m:core" "cidr_range"
     logicalId="SourceCIDR"
@@ -59,7 +61,7 @@ healthCheck:
 
   {{resource 'instanceprofile_mp' logicalId="InstanceProfileEsAdmin"}}
   {{resource 'role' logicalId="EsAdmin"}}
-  {{resource 'managedpolicy' logicalId="ManagedPolicy"}}
+  {{resource 'managedpolicy_ha' logicalId="ManagedPolicy"}}
 
   {{#each ingressPortsSSH}}
     {{

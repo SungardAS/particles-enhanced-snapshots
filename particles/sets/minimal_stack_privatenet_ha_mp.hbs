@@ -50,7 +50,9 @@ healthCheck:
     }}
   {{/each}}
 
-  {{parameter "ssl_certificate_arn" logicalId="SslCertificateArn"}}
+  {{parameter "m:core" "arn"
+    description="[Required] Existing SSL Certificate ARN"
+    logicalId="SslCertificateArn"}}
   {{parameter "vpc_id" logicalId="VpcId" description="[required] VPC to create the instance in."}}
 
   {{parameter "m:core" "cidr_range"
@@ -64,7 +66,7 @@ healthCheck:
 
   {{resource 'instanceprofile_mp' logicalId="InstanceProfileEsAdmin"}}
   {{resource 'role' logicalId="EsAdmin"}}
-  {{resource 'managedpolicy' logicalId="ManagedPolicy"}}
+  {{resource 'managedpolicy_ha' logicalId="ManagedPolicy"}}
 
   {{#each ingressPortsSSH}}
     {{

@@ -5,14 +5,16 @@
 
   {{resource "m:vpc" "security_group"
     logicalId="SecurityGroup"
-    VpcId=(ref "VPC")
-    Tags=(ref "NameTag")
+    vpcId=(ref "VpcId")
+    tags=(ref "NameTag")
+    groupDescription="Enhanced Snapshot"
   }}
 
   {{resource "m:vpc" "security_group"
     logicalId="PrivateSecurityGroup"
-    VpcId=(ref "VPC")
-    Tags=(ref "NameTag")
+    vpcId=(ref "VpcId")
+    tags=(ref "NameTag")
+    groupDescription="Enhanced Snapshot"
   }}
 
   {{resource 'launchconfiguration'

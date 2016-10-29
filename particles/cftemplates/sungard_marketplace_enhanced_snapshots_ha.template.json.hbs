@@ -5,8 +5,8 @@
 
   {{resource "m:vpc" "security_group"
     logicalId="SecurityGroup"
-    VpcId=(ref "VPC")
-    Tags=(ref "NameTag")
+    groupDescription="Enhanced Snapshot"
+    tags='[ {"Ref": "NameTag" } ]'
   }}
 
   {{resource 'launchconfiguration'
