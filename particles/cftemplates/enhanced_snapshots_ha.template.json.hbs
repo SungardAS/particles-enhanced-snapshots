@@ -10,6 +10,13 @@
     vpcId=(ref "VpcId")
   }}
 
+  {{resource "m:vpc" "security_group"
+    logicalId="ELBSecurityGroup"
+    groupDescription="ELB Enhanced Snapshot"
+    tags='[ { "Key": "Name", "Value": { "Ref": "NameTag" } } ]'
+    vpcId=(ref "VpcId")
+  }}
+
   {{resource 'launchconfiguration'
     logicalId="LaunchConfiguration"
     imageId=(ref "ImageId")

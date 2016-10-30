@@ -29,7 +29,7 @@ healthCheck:
   {{parameter "role_select" logicalId="RoleSelect"}}
   {{parameter "bucket_name" logicalId="BucketName"}}
   {{parameter "cluster_name" logicalId="ClusterName"}}
-  {{parameter "vpc_id" logicalId="VpcId" description="[required] VPC to create the instance in."}}
+  {{parameter "vpc_id" logicalId="VpcId" description="[required] VPC to create the cluster in."}}
   {{parameter "uuid" logicalId="UUID"}}
 
   {{parameter "m:core" "cidr_range"
@@ -46,7 +46,7 @@ healthCheck:
     {{
       parameter "subnet_id"
       logicalId=(concat "PublicSubnet" this)
-      description="[Required] Network for Elastic Load Balancer"
+      description="[Required] Network for Elastic Load Balancer. Network defines region to operate in."
     }}
   {{/each}}
 
@@ -135,6 +135,38 @@ healthCheck:
     }}
   {{/each}}
 
+  {{#each ingressPortsSSH}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::SecurityGroupIngress"
+      condition="CreateSecurityRulesIsTrueCondition"
+      logicalId=(concat "ELBSecurityGroupIngress" this)
+      properties=(
+        partial "security_group_ingress_properties"
+        cidrLogicalId="SshLocation"
+        securityGroupId='{"Fn::GetAtt": ["ELBSecurityGroup","GroupId"]}'
+        fromPort=this
+        toPort=this
+      )
+    }}
+  {{/each}}
+
+  {{#each ingressPorts}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::SecurityGroupIngress"
+      condition="CreateSecurityRulesIsTrueCondition"
+      logicalId=(concat "ELBSecurityGroupIngress" this)
+      properties=(
+        partial "security_group_ingress_properties"
+        cidrLogicalId="SourceCIDR"
+        securityGroupId='{"Fn::GetAtt": ["ELBSecurityGroup","GroupId"]}'
+        fromPort=this
+        toPort=this
+      )
+    }}
+  {{/each}}
+
   {{resource 'sns_topic'
     logicalId="SnsTopic"
     clusterNameLogicalId=(ref "ClusterName")
@@ -148,6 +180,7 @@ healthCheck:
     crossZone='true'
     loadBalancerName='{"Fn::Join": ["",[{"Ref": "ClusterName"},"-lb"]]}'
     lbCookieStickinessPolicy='[ {"PolicyName": "ESSELBPolicy"} ]'
+    securityGroups='[ { "Ref": "ELBSecurityGroup" } ]'
     listeners=(
       partial 'listener'
       policyNames="ESSELBPolicy"

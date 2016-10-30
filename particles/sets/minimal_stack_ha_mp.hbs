@@ -29,7 +29,7 @@ healthCheck:
   {{parameter "bucket_name" logicalId="BucketName"}}
   {{parameter "cluster_name" logicalId="ClusterName"}}
   {{parameter "uuid" logicalId="UUID"}}
-  {{parameter "vpc_id" logicalId="VpcId" description="[required] VPC to create the instance in."}}
+  {{parameter "vpc_id" logicalId="VpcId" description="[required] VPC to create the cluster in."}}
 
 {{
   parameter "m:core" "base"
@@ -43,7 +43,7 @@ healthCheck:
     {{
       parameter "subnet_id"
       logicalId=(concat "PublicSubnet" this)
-      description="[Required] Network for Elastic Load Balancer"
+      description="[Required] Network for Elastic Load Balancer. Network defines region to operate in."
     }}
   {{/each}}
 
@@ -71,7 +71,7 @@ healthCheck:
       logicalId=(concat "SecurityGroupIngress" this)
       properties=(
         partial "security_group_ingress_properties"
-        cidrLogicalId="SshLocation"
+        cidrLogicalId="VPCCIDR"
         securityGroupId='{"Fn::GetAtt": ["SecurityGroup","GroupId"]}'
         fromPort=this
         toPort=this
@@ -86,7 +86,7 @@ healthCheck:
       logicalId=(concat "SecurityGroupIngress" this)
       properties=(
         partial "security_group_ingress_properties"
-        cidrLogicalId="SourceCIDR"
+        cidrLogicalId="VPCCIDR"
         securityGroupId='{"Fn::GetAtt": ["SecurityGroup","GroupId"]}'
         fromPort=this
         toPort=this
@@ -109,6 +109,36 @@ healthCheck:
     }}
   {{/each}}
 
+  {{#each ingressPortsSSH}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::SecurityGroupIngress"
+      logicalId=(concat "ELBSecurityGroupIngress" this)
+      properties=(
+        partial "security_group_ingress_properties"
+        cidrLogicalId="SshLocation"
+        securityGroupId='{"Fn::GetAtt": ["ELBSecurityGroup","GroupId"]}'
+        fromPort=this
+        toPort=this
+      )
+    }}
+  {{/each}}
+
+  {{#each ingressPorts}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::SecurityGroupIngress"
+      logicalId=(concat "ELBSecurityGroupIngress" this)
+      properties=(
+        partial "security_group_ingress_properties"
+        cidrLogicalId="SourceCIDR"
+        securityGroupId='{"Fn::GetAtt": ["ELBSecurityGroup","GroupId"]}'
+        fromPort=this
+        toPort=this
+      )
+    }}
+  {{/each}}
+
   {{resource 'sns_topic'
     logicalId="SnsTopic"
     clusterNameLogicalId=(ref "ClusterName")
@@ -122,6 +152,7 @@ healthCheck:
     crossZone='true'
     loadBalancerName='{"Fn::Join": ["",[{"Ref": "ClusterName"},"-lb"]]}'
     lbCookieStickinessPolicy='[ {"PolicyName": "ESSELBPolicy"} ]'
+    securityGroups='[ { "Ref": "ELBSecurityGroup" } ]'
     listeners=(
       partial 'listener'
       policyNames="ESSELBPolicy"
