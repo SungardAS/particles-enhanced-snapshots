@@ -96,7 +96,7 @@ healthCheck:
       logicalId=(concat "SecurityGroupIngress" this)
       properties=(
         partial "security_group_ingress_properties"
-        cidrLogicalId="VPCCIDR"
+        cidrLogicalId='{ "Fn::GetAtt" : [ { "Ref": "VpcId" }, "CidrBlock" ] }'
         securityGroupId='{"Fn::GetAtt": ["SecurityGroup","GroupId"]}'
         fromPort=this
         toPort=this
