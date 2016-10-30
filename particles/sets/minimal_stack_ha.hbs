@@ -70,20 +70,18 @@ healthCheck:
     constraintDescription="must be a valid CIDR range formatted as x.x.x.x/x"
   }}
 
-  {{
-    resource 'instanceprofile' logicalId="InstanceProfileEsAdmin"
+  {{resource 'instanceprofile' logicalId="InstanceProfileEsAdmin"
     roleSelectLogicalId="RoleSelect"
     definedRoleLogicalId="DefinedRole"
   }}
 
-  {{
-    resource 'role' logicalId="EsAdmin"
+  {{resource 'role' logicalId="EsAdmin"
     definedRoleLogicalId="DefinedRole"
   }}
 
-  {{
-    resource 'managedpolicy_ha' logicalId="ManagedPolicy"
+  {{resource 'managedpolicy_ha' logicalId="ManagedPolicy"
     definedRoleLogicalId="DefinedRole"
+    clusterName=(ref "ClusterName")
   }}
 
   {{set "m:core" "true_false" parameterLogicalId="CreateSecurityRules" default="true"}}

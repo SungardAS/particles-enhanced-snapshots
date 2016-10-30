@@ -62,7 +62,7 @@ healthCheck:
 
   {{resource 'instanceprofile_mp' logicalId="InstanceProfileEsAdmin"}}
   {{resource 'role' logicalId="EsAdmin"}}
-  {{resource 'managedpolicy_ha' logicalId="ManagedPolicy"}}
+  {{resource 'managedpolicy_ha' logicalId="ManagedPolicy" clusterName=(ref "ClusterName")}}
 
   {{#each ingressPortsSSH}}
     {{
