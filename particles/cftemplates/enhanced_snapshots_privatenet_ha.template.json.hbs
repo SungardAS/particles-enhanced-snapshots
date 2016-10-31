@@ -15,14 +15,14 @@
   {{resource "m:vpc" "security_group"
     logicalId="SecurityGroup"
     vpcId=(ref "VPC")
-    tags=(ref "NameTag")
+    tags='[ { "Key": "Name", "Value": { "Ref": "NameTag" } } ]'
     groupDescription="Enhanced Snapshot"
   }}
 
   {{resource "m:vpc" "security_group"
     logicalId="PrivateSecurityGroup"
     vpcId=(ref "VPC")
-    tags=(ref "NameTag")
+    tags='[ { "Key": "Name", "Value": { "Ref": "NameTag" } } ]'
     groupDescription="Enhanced Snapshot"
   }}
 
@@ -60,8 +60,8 @@
 
   {{resource 'vpcgatewayattachment'
     logicalId="GatewayToInternet"
-    vpcLogicalId=(ref "VPC")
-    internetGatewayLogicalId=(ref "InternetGateway")
+    vpcId=(ref "VPC")
+    internetGatewayId=(ref "InternetGateway")
   }}
 
   {{resource 'launchconfiguration'
@@ -71,7 +71,7 @@
     instanceTypeLogicalId=(ref "InstanceType")
     autoScalingGroupLogicalId="AutoScalingGroup"
     securityGroupLogicalId=(ref "PrivateSecurityGroup")
-    associatePublicIpAddress="true"
+    associatePublicIpAddress="false"
   }}
 
   {{resource 'autoscalinggroup'

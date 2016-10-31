@@ -9,6 +9,8 @@ privateIngressPorts:
   - 80
   - 443
   - 6442
+  - 61614
+  - 61616
 privateSubnet:
   - 1
   - 2
@@ -126,6 +128,7 @@ healthCheck:
     crossZone='true'
     loadBalancerName='{"Fn::Join": ["",[{"Ref": "ClusterName"},"-lb"]]}'
     lbCookieStickinessPolicy='[ {"PolicyName": "ESSELBPolicy"} ]'
+    securityGroups='[ { "Ref": "SecurityGroup" } ]'
     listeners=(
       partial 'listener'
       policyNames="ESSELBPolicy"

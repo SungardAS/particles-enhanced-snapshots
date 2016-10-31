@@ -9,6 +9,8 @@ privateIngressPorts:
   - 80
   - 443
   - 6442
+  - 61614
+  - 61616
 privateRoute:
   - 1
   - 2
@@ -170,31 +172,31 @@ healthCheck:
 
   {{resource "m:vpc" "route_table"
     logicalId="PublicRouteTable"
-    VpcId=(ref "VPC")
+    vpcId=(ref "VPC")
   }}
 
   {{resource "m:vpc" "route"
     dependsOn="GatewayToInternet"
     logicalId="PublicRoute"
-    routeTableId="PublicRouteTable"
-    desinationCidrBlock="0.0.0.0/0"
-    gatewayId="InternetGateway"
+    routeTableId=(ref "PublicRouteTable")
+    destinationCidrBlock="0.0.0.0/0"
+    gatewayId=(ref "InternetGateway")
   }}
 
   {{#each privateRoute}}
     {{resource "m:vpc" "route"
       logicalId=(concat "PrivateRoute" this)
-      routeTableId=(concat "PrivateRouteTable" this)
-      desinationCidrBlock="0.0.0.0/0"
-      natGatewayId=(concat "NatGateway" this)
+      routeTableId=(ref (concat "PrivateRouteTable" this))
+      destinationCidrBlock="0.0.0.0/0"
+      natGatewayId=(ref (concat "NatGateway" this))
     }}
   {{/each}}
 
   {{#each privateRouteTableAssoc}}
     {{resource "m:vpc" "subnet/route_table_association"
       logicalId=(concat "PrivateSubnetRouteTableAssociation" this)
-      subnetId=(concat "PrivateSubnet" this)
-      routeTableId=(concat "PrivateRouteTable" this)
+      subnetId=(ref (concat "PrivateSubnet" this))
+      routeTableId=(ref (concat "PrivateRouteTable" this))
     }}
   {{/each}}
 
@@ -202,8 +204,8 @@ healthCheck:
     {{
       resource "m:vpc" "subnet/route_table_association"
       logicalId=(concat "PublicSubnetRouteTableAssociation" this)
-      subnetLogicalId=(concat "PublicSubnet" this)
-      routeTableId="PublicRouteTable"
+      subnetId=(ref (concat "PublicSubnet" this))
+      routeTableId=(ref "PublicRouteTable")
     }}
   {{/each}}
 
@@ -220,6 +222,7 @@ healthCheck:
     crossZone='true'
     loadBalancerName='{"Fn::Join": ["",[{"Ref": "ClusterName"},"-lb"]]}'
     lbCookieStickinessPolicy='[ {"PolicyName": "ESSELBPolicy"} ]'
+    securityGroups='[ { "Ref": "SecurityGroup" } ]'
     listeners=(
       partial 'listener'
       policyNames="ESSELBPolicy"
