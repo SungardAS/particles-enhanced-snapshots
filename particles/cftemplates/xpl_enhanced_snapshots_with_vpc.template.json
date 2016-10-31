@@ -74,7 +74,7 @@
       "Value": {
         "Ref": "Instance"
       },
-      "Description": "Instance ID for the Instance resource"
+      "Description": "ID for Instance"
     },
     "InstanceAvailabilityZone": {
       "Value": {
@@ -128,13 +128,13 @@
           "GroupId"
         ]
       },
-      "Description": "Group ID for the SecurityGroup resource"
+      "Description": "Group ID for SecurityGroup"
     },
     "SecurityGroupName": {
       "Value": {
         "Ref": "SecurityGroup"
       },
-      "Description": "Name for the SecurityGroup resource"
+      "Description": "Group Name for SecurityGroup"
     }
   },
   "Parameters": {

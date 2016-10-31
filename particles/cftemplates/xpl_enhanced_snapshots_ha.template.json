@@ -2,18 +2,6 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "This template was built to run in us-east-1 and will create resources to run enhanced-snapshots (https://github.com/sungardas/enhanced-snapshots) in high availability mode . Templates for other regions can be found at https://github.com/sungardas/particle-enhanced-snapshots\n",
   "Conditions": {
-    "DefinedSsh": {
-      "Fn::Not": [
-        {
-          "Fn::Equals": [
-            {
-              "Ref": "SshLocation"
-            },
-            "0.0.0.0/0"
-          ]
-        }
-      ]
-    },
     "DefinedRole": {
       "Fn::Equals": [
         {
@@ -47,13 +35,64 @@
           "GroupId"
         ]
       },
-      "Description": "Group ID for the SecurityGroup resource"
+      "Description": "Group ID for SecurityGroup"
     },
     "SecurityGroupName": {
       "Value": {
         "Ref": "SecurityGroup"
       },
-      "Description": "Name for the SecurityGroup resource"
+      "Description": "Group Name for SecurityGroup"
+    },
+    "ElasticLoadBalancerId": {
+      "Value": {
+        "Ref": "ElasticLoadBalancer"
+      },
+      "Description": "ID for ElasticLoadBalancer"
+    },
+    "ElasticLoadBalancerCanonicalHostedZoneName": {
+      "Value": {
+        "Fn::GetAtt": [
+          "ElasticLoadBalancer",
+          "CanonicalHostedZoneName"
+        ]
+      },
+      "Description": "The name of the Amazon Route 53 hosted zone that is associated with "
+    },
+    "ElasticLoadBalancerCanonicalHostedZoneNameId": {
+      "Value": {
+        "Fn::GetAtt": [
+          "ElasticLoadBalancer",
+          "CanonicalHostedZoneNameID"
+        ]
+      },
+      "Description": "The ID of the Amazon Route 53 hosted zone name that is associated with "
+    },
+    "ElasticLoadBalancerDNSName": {
+      "Value": {
+        "Fn::GetAtt": [
+          "ElasticLoadBalancer",
+          "DNSName"
+        ]
+      },
+      "Description": "The DNS name for "
+    },
+    "ElasticLoadBalancerSourceSecurityGroupName": {
+      "Value": {
+        "Fn::GetAtt": [
+          "ElasticLoadBalancer",
+          "SourceSecurityGroup.GroupName"
+        ]
+      },
+      "Description": "The security group that you can use as part of your inbound rules for your load balancer's back-end Amazon EC2 application instances"
+    },
+    "ElasticLoadBalancerSourceSecurityGroupOwnerAlias": {
+      "Value": {
+        "Fn::GetAtt": [
+          "ElasticLoadBalancer",
+          "SourceSecurityGroup.OwnerAlias"
+        ]
+      },
+      "Description": "The owner of the source security group"
     }
   },
   "Parameters": {
@@ -136,6 +175,10 @@
       "Description": "[required] Enter name of cluster will be created",
       "ConstraintDescription": "You need to specify cluster name (3-20 chars)"
     },
+    "VpcId": {
+      "Type": "AWS::EC2::VPC::Id",
+      "Description": "[required] VPC to create the cluster in."
+    },
     "UUID": {
       "Type": "String",
       "AllowedPattern": "(^$)|(^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)",
@@ -145,27 +188,24 @@
     },
     "VPCCIDR": {
       "Type": "String",
-      "Default": "10.0.0.0/16",
       "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
       "MaxLength": "18",
       "MinLength": "9",
-      "Description": "[Required]CIDR address of VPC will be created for infrastructure",
+      "Description": "VPC CIDR (use the choosen below)",
       "ConstraintDescription": "must be a valid CIDR range formatted as x.x.x.x/x"
     },
-    "PrivateSubnetIds": {
-      "Type": "CommaDelimitedList",
-      "Default": "10.0.2.0/24, 10.0.3.0/24",
-      "Description": "[required] Private subnets for instances network"
+    "PublicSubnet1": {
+      "Type": "AWS::EC2::Subnet::Id",
+      "Description": "[Required] Network for Elastic Load Balancer. Network defines region to operate in."
     },
-    "PublicSubnetIds": {
-      "Type": "CommaDelimitedList",
-      "Default": "10.0.0.0/24, 10.0.1.0/24",
-      "Description": "[required] Public subnets for Elastic Load Balancer"
+    "PublicSubnet2": {
+      "Type": "AWS::EC2::Subnet::Id",
+      "Description": "[Required] Network for Elastic Load Balancer. Network defines region to operate in."
     },
     "SslCertificateArn": {
       "Type": "String",
-      "Description": "[required] SSL certificate ARN used for Elastic Load Balancer",
-      "ConstraintDescription": "You need to specify SSL certificate ARN"
+      "AllowedPattern": "arn:aws:([a-zA-Z0-9\\-])+:([a-z]{2}-[a-z]+-\\d{1})?:(\\d{12})?:(.*)",
+      "Description": "[Required] Existing SSL Certificate ARN for Elastic Load Balancer"
     },
     "SourceCIDR": {
       "Type": "String",
@@ -190,6 +230,7 @@
   "Resources": {
     "InstanceProfileEsAdmin": {
       "Type": "AWS::IAM::InstanceProfile",
+      "DeletionPolicy": "Retain",
       "Properties": {
         "Path": "/",
         "Roles": {
@@ -211,6 +252,7 @@
     },
     "EsAdmin": {
       "Type": "AWS::IAM::Role",
+      "DeletionPolicy": "Retain",
       "Condition": "DefinedRole",
       "Properties": {
         "AssumeRolePolicyDocument": {
@@ -234,6 +276,7 @@
     },
     "ManagedPolicy": {
       "Type": "AWS::IAM::ManagedPolicy",
+      "DeletionPolicy": "Retain",
       "Condition": "DefinedRole",
       "Properties": {
         "Description": "Policy es admin role",
@@ -256,6 +299,8 @@
                 "ec2:DescribeRegions",
                 "ec2:DescribeSnapshotAttribute",
                 "ec2:DescribeSnapshots",
+                "ec2:DescribeNetworkAcls",
+                "ec2:DescribeSecurityGroups",
                 "ec2:DescribeTags",
                 "ec2:DescribeVolumeAttribute",
                 "ec2:DescribeVolumeStatus",
@@ -266,7 +311,8 @@
                 "ec2:ModifyVolumeAttribute",
                 "ec2:ResetSnapshotAttribute",
                 "s3:ListAllMyBuckets",
-                "dynamodb:ListTables"
+                "dynamodb:ListTables",
+                "cloudformation:ListStacks"
               ],
               "Resource": "*"
             },
@@ -417,6 +463,308 @@
               "Effect": "Allow"
             },
             {
+              "Condition": {},
+              "Action": "autoscaling:*",
+              "Resource": "*",
+              "Effect": "Allow"
+            },
+            {
+              "Condition": {},
+              "Action": "ec2:*",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    ":",
+                    [
+                      "arn:aws:ec2",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      "security-group/*"
+                    ]
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Condition": {},
+              "Action": [
+                "elasticloadbalancing:DeleteLoadBalancer"
+              ],
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::Join": [
+                          ":",
+                          [
+                            "arn:aws:elasticloadbalancing",
+                            {
+                              "Ref": "AWS::Region"
+                            },
+                            {
+                              "Ref": "AWS::AccountId"
+                            },
+                            "loadbalancer/"
+                          ]
+                        ]
+                      },
+                      {
+                        "Ref": "ClusterName"
+                      },
+                      "-lb"
+                    ]
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Condition": {},
+              "Action": "iam:*",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::Join": [
+                          ":",
+                          [
+                            "arn:aws:iam:",
+                            {
+                              "Ref": "AWS::AccountId"
+                            },
+                            "role/"
+                          ]
+                        ]
+                      },
+                      {
+                        "Ref": "AWS::StackName"
+                      },
+                      "*"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::Join": [
+                          ":",
+                          [
+                            "arn:aws:iam:",
+                            {
+                              "Ref": "AWS::AccountId"
+                            },
+                            "policy/"
+                          ]
+                        ]
+                      },
+                      {
+                        "Ref": "AWS::StackName"
+                      },
+                      "*"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::Join": [
+                          ":",
+                          [
+                            "arn:aws:iam:",
+                            {
+                              "Ref": "AWS::AccountId"
+                            },
+                            "instance-profile/"
+                          ]
+                        ]
+                      },
+                      {
+                        "Ref": "AWS::StackName"
+                      },
+                      "*"
+                    ]
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Condition": {},
+              "Action": [
+                "cloudformation:DeleteStack"
+              ],
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::Join": [
+                          ":",
+                          [
+                            "arn:aws:cloudformation",
+                            {
+                              "Ref": "AWS::Region"
+                            },
+                            {
+                              "Ref": "AWS::AccountId"
+                            },
+                            "stack/"
+                          ]
+                        ]
+                      },
+                      {
+                        "Ref": "AWS::StackName"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Condition": {},
+              "Action": [
+                "cloudwatch:ListMetrics",
+                "cloudwatch:PutMetricAlarm",
+                "cloudwatch:PutMetricData",
+                "cloudwatch:DescribeAlarms",
+                "cloudwatch:DeleteAlarms"
+              ],
+              "Resource": "*",
+              "Effect": "Allow"
+            },
+            {
+              "Condition": {},
+              "Action": [
+                "sqs:ListQueues"
+              ],
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    ":",
+                    [
+                      "arn:aws:sqs",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      "*"
+                    ]
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Condition": {},
+              "Action": "*",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::Join": [
+                          ":",
+                          [
+                            "arn:aws:sqs",
+                            {
+                              "Ref": "AWS::Region"
+                            },
+                            {
+                              "Ref": "AWS::AccountId"
+                            },
+                            ""
+                          ]
+                        ]
+                      },
+                      "ESS-",
+                      {
+                        "Ref": "ClusterName"
+                      },
+                      "-queue"
+                    ]
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Condition": {},
+              "Action": [
+                "sns:ListTopics"
+              ],
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    ":",
+                    [
+                      "arn:aws:sns",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      "*"
+                    ]
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Condition": {},
+              "Action": "*",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::Join": [
+                          ":",
+                          [
+                            "arn:aws:sns",
+                            {
+                              "Ref": "AWS::Region"
+                            },
+                            {
+                              "Ref": "AWS::AccountId"
+                            },
+                            ""
+                          ]
+                        ]
+                      },
+                      "ESS-",
+                      {
+                        "Ref": "ClusterName"
+                      },
+                      "-topic"
+                    ]
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
               "Action": "s3:CreateBucket",
               "Resource": "arn:aws:s3:::com.sungardas.enhancedsnapshots*",
               "Effect": "Deny"
@@ -434,7 +782,7 @@
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties": {
         "CidrIp": {
-          "Ref": "SshLocation"
+          "Ref": "VPCCIDR"
         },
         "FromPort": 22,
         "GroupId": {
@@ -452,7 +800,7 @@
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties": {
         "CidrIp": {
-          "Ref": "SourceCIDR"
+          "Ref": "VPCCIDR"
         },
         "FromPort": 443,
         "GroupId": {
@@ -470,7 +818,7 @@
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties": {
         "CidrIp": {
-          "Ref": "SourceCIDR"
+          "Ref": "VPCCIDR"
         },
         "FromPort": 80,
         "GroupId": {
@@ -484,59 +832,16 @@
       },
       "Condition": "CreateSecurityRulesIsTrueCondition"
     },
-    "PrivateSecurityGroupIngress22": {
+    "SecurityGroupIngress6442": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties": {
-        "CidrIp": "0.0.0.0/0",
-        "FromPort": 22,
-        "GroupId": {
-          "Fn::GetAtt": [
-            "PrivateSecurityGroup",
-            "GroupId"
-          ]
+        "CidrIp": {
+          "Ref": "VPCCIDR"
         },
-        "IpProtocol": "tcp",
-        "ToPort": 22
-      }
-    },
-    "PrivateSecurityGroupIngress80": {
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "CidrIp": "0.0.0.0/0",
-        "FromPort": 80,
-        "GroupId": {
-          "Fn::GetAtt": [
-            "PrivateSecurityGroup",
-            "GroupId"
-          ]
-        },
-        "IpProtocol": "tcp",
-        "ToPort": 80
-      }
-    },
-    "PrivateSecurityGroupIngress443": {
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "CidrIp": "0.0.0.0/0",
-        "FromPort": 443,
-        "GroupId": {
-          "Fn::GetAtt": [
-            "PrivateSecurityGroup",
-            "GroupId"
-          ]
-        },
-        "IpProtocol": "tcp",
-        "ToPort": 443
-      }
-    },
-    "PrivateSecurityGroupIngress6442": {
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "CidrIp": "0.0.0.0/0",
         "FromPort": 6442,
         "GroupId": {
           "Fn::GetAtt": [
-            "PrivateSecurityGroup",
+            "SecurityGroup",
             "GroupId"
           ]
         },
@@ -544,316 +849,93 @@
         "ToPort": 6442
       }
     },
-    "PrivateRouteTable1": {
-      "Type": "AWS::EC2::RouteTable",
+    "SecurityGroupIngress61614": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
-        }
-      }
-    },
-    "PrivateRouteTable2": {
-      "Type": "AWS::EC2::RouteTable",
-      "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
-        }
-      }
-    },
-    "ElasticIp1": {
-      "Type": "AWS::EC2::EIP",
-      "Properties": {
-        "Domain": "vpc"
-      }
-    },
-    "ElasticIp2": {
-      "Type": "AWS::EC2::EIP",
-      "Properties": {
-        "Domain": "vpc"
-      }
-    },
-    "NatGateway1": {
-      "Type": "AWS::EC2::NatGateway",
-      "Properties": {
-        "AllocationId": {
-          "Fn::GetAtt": [
-            "ElasticIp1",
-            "AllocationId"
-          ]
-        },
-        "SubnetId": {
-          "Ref": "PublicSubnet1"
-        }
-      },
-      "DependsOn": "ElasticIp1"
-    },
-    "NatGateway2": {
-      "Type": "AWS::EC2::NatGateway",
-      "Properties": {
-        "AllocationId": {
-          "Fn::GetAtt": [
-            "ElasticIp2",
-            "AllocationId"
-          ]
-        },
-        "SubnetId": {
-          "Ref": "PublicSubnet2"
-        }
-      },
-      "DependsOn": "ElasticIp2"
-    },
-    "PublicRouteTable": {
-      "Type": "AWS::EC2::RouteTable",
-      "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
-        }
-      }
-    },
-    "PublicRoute": {
-      "Type": "AWS::EC2::Route",
-      "Properties": {
-        "RouteTableId": {
-          "Ref": "PublicRouteTable"
-        },
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "GatewayId": {
-          "Ref": "InternetGateway"
-        }
-      },
-      "DependsOn": "GatewayToInternet"
-    },
-    "PrivateRoute1": {
-      "Type": "AWS::EC2::Route",
-      "Properties": {
-        "RouteTableId": {
-          "Ref": "PrivateRouteTable1"
-        },
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "NatGatewayId": {
-          "Ref": "NatGateway1"
-        }
-      }
-    },
-    "PrivateRoute2": {
-      "Type": "AWS::EC2::Route",
-      "Properties": {
-        "RouteTableId": {
-          "Ref": "PrivateRouteTable2"
-        },
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "NatGatewayId": {
-          "Ref": "NatGateway2"
-        }
-      }
-    },
-    "PrivateSubnetRouteTableAssociation1": {
-      "Type": "AWS::EC2::SubnetRouteTableAssociation",
-      "Properties": {
-        "SubnetId": {
-          "Ref": "PrivateSubnet1"
-        },
-        "RouteTableId": {
-          "Ref": "PrivateRouteTable1"
-        }
-      }
-    },
-    "PrivateSubnetRouteTableAssociation2": {
-      "Type": "AWS::EC2::SubnetRouteTableAssociation",
-      "Properties": {
-        "SubnetId": {
-          "Ref": "PrivateSubnet2"
-        },
-        "RouteTableId": {
-          "Ref": "PrivateRouteTable2"
-        }
-      }
-    },
-    "PublicSubnetRouteTableAssociation1": {
-      "Type": "AWS::EC2::SubnetRouteTableAssociation",
-      "Properties": {
-        "SubnetId": {
-          "Ref": "PublicSubnet1"
-        },
-        "RouteTableId": {
-          "Ref": "PublicRouteTable"
-        }
-      }
-    },
-    "PublicSubnetRouteTableAssociation2": {
-      "Type": "AWS::EC2::SubnetRouteTableAssociation",
-      "Properties": {
-        "SubnetId": {
-          "Ref": "PublicSubnet2"
-        },
-        "RouteTableId": {
-          "Ref": "PublicRouteTable"
-        }
-      }
-    },
-    "VPC": {
-      "Type": "AWS::EC2::VPC",
-      "Properties": {
-        "CidrBlock": {
+        "CidrIp": {
           "Ref": "VPCCIDR"
         },
-        "EnableDnsSupport": "true",
-        "EnableDnsHostnames": "true",
-        "InstanceTenancy": "default"
+        "FromPort": 61614,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "SecurityGroup",
+            "GroupId"
+          ]
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 61614
       }
     },
-    "SecurityGroup": {
-      "Type": "AWS::EC2::SecurityGroup",
+    "SecurityGroupIngress61616": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties": {
-        "GroupDescription": "Enhanced Snapshot",
-        "VpcId": {
-          "Ref": "VPC"
+        "CidrIp": {
+          "Ref": "VPCCIDR"
         },
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Ref": "NameTag"
-            }
-          }
-        ]
+        "FromPort": 61616,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "SecurityGroup",
+            "GroupId"
+          ]
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 61616
       }
     },
-    "PrivateSecurityGroup": {
-      "Type": "AWS::EC2::SecurityGroup",
+    "ELBSecurityGroupIngress22": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties": {
-        "GroupDescription": "Enhanced Snapshot",
-        "VpcId": {
-          "Ref": "VPC"
+        "CidrIp": {
+          "Ref": "SshLocation"
         },
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Ref": "NameTag"
-            }
-          }
-        ]
-      }
+        "FromPort": 22,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "ELBSecurityGroup",
+            "GroupId"
+          ]
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 22
+      },
+      "Condition": "CreateSecurityRulesIsTrueCondition"
     },
-    "PublicSubnet1": {
-      "Type": "AWS::EC2::Subnet",
+    "ELBSecurityGroupIngress443": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
+        "CidrIp": {
+          "Ref": "SourceCIDR"
         },
-        "CidrBlock": {
-          "Fn::Select": [
-            "0",
-            {
-              "Ref": "PublicSubnetIds"
-            }
+        "FromPort": 443,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "ELBSecurityGroup",
+            "GroupId"
           ]
         },
-        "AvailabilityZone": {
-          "Fn::Select": [
-            "0",
-            {
-              "Fn::GetAZs": {
-                "Ref": "AWS::Region"
-              }
-            }
-          ]
-        }
-      }
+        "IpProtocol": "tcp",
+        "ToPort": 443
+      },
+      "Condition": "CreateSecurityRulesIsTrueCondition"
     },
-    "PublicSubnet2": {
-      "Type": "AWS::EC2::Subnet",
+    "ELBSecurityGroupIngress80": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
+        "CidrIp": {
+          "Ref": "SourceCIDR"
         },
-        "CidrBlock": {
-          "Fn::Select": [
-            "1",
-            {
-              "Ref": "PublicSubnetIds"
-            }
+        "FromPort": 80,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "ELBSecurityGroup",
+            "GroupId"
           ]
         },
-        "AvailabilityZone": {
-          "Fn::Select": [
-            "1",
-            {
-              "Fn::GetAZs": {
-                "Ref": "AWS::Region"
-              }
-            }
-          ]
-        }
-      }
-    },
-    "PrivateSubnet1": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
-        },
-        "CidrBlock": {
-          "Fn::Select": [
-            "0",
-            {
-              "Ref": "PrivateSubnetIds"
-            }
-          ]
-        },
-        "AvailabilityZone": {
-          "Fn::Select": [
-            "0",
-            {
-              "Fn::GetAZs": {
-                "Ref": "AWS::Region"
-              }
-            }
-          ]
-        }
-      }
-    },
-    "PrivateSubnet2": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
-        },
-        "CidrBlock": {
-          "Fn::Select": [
-            "1",
-            {
-              "Ref": "PrivateSubnetIds"
-            }
-          ]
-        },
-        "AvailabilityZone": {
-          "Fn::Select": [
-            "1",
-            {
-              "Fn::GetAZs": {
-                "Ref": "AWS::Region"
-              }
-            }
-          ]
-        }
-      }
-    },
-    "InternetGateway": {
-      "Type": "AWS::EC2::InternetGateway",
-      "Properties": {}
-    },
-    "GatewayToInternet": {
-      "Type": "AWS::EC2::VPCGatewayAttachment",
-      "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
-        },
-        "InternetGatewayId": {
-          "Ref": "InternetGateway"
-        }
-      }
+        "IpProtocol": "tcp",
+        "ToPort": 80
+      },
+      "Condition": "CreateSecurityRulesIsTrueCondition"
     },
     "SnsTopic": {
       "Type": "AWS::SNS::Topic",
@@ -882,6 +964,112 @@
             ]
           ]
         }
+      }
+    },
+    "ElasticLoadBalancer": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties": {
+        "Listeners": [
+          {
+            "LoadBalancerPort": "443",
+            "InstancePort": "443",
+            "InstanceProtocol": "HTTPS",
+            "Protocol": "HTTPS",
+            "PolicyNames": [
+              "ESSELBPolicy"
+            ],
+            "SSLCertificateId": {
+              "Ref": "SslCertificateArn"
+            }
+          },
+          {
+            "LoadBalancerPort": "80",
+            "InstancePort": "80",
+            "InstanceProtocol": "HTTP",
+            "Protocol": "HTTP"
+          },
+          {
+            "LoadBalancerPort": "22",
+            "InstancePort": "22",
+            "InstanceProtocol": "TCP",
+            "Protocol": "TCP"
+          }
+        ],
+        "ConnectionSettings": {
+          "IdleTimeout": 600
+        },
+        "CrossZone": "true",
+        "HealthCheck": {
+          "Target": "HTTPS:443/",
+          "HealthyThreshold": 3,
+          "UnhealthyThreshold": 7,
+          "Interval": 30,
+          "Timeout": 10
+        },
+        "LBCookieStickinessPolicy": [
+          {
+            "PolicyName": "ESSELBPolicy"
+          }
+        ],
+        "LoadBalancerName": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "ClusterName"
+              },
+              "-lb"
+            ]
+          ]
+        },
+        "Scheme": "internet-facing",
+        "SecurityGroups": [
+          {
+            "Ref": "ELBSecurityGroup"
+          }
+        ],
+        "Subnets": [
+          {
+            "Ref": "PublicSubnet1"
+          },
+          {
+            "Ref": "PublicSubnet2"
+          }
+        ]
+      }
+    },
+    "SecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enhanced Snapshot",
+        "VpcId": {
+          "Ref": "VpcId"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Ref": "NameTag"
+            }
+          }
+        ]
+      }
+    },
+    "ELBSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "ELB Enhanced Snapshot",
+        "VpcId": {
+          "Ref": "VpcId"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Ref": "NameTag"
+            }
+          }
+        ]
       }
     },
     "LaunchConfiguration": {
@@ -992,7 +1180,7 @@
         }
       },
       "Properties": {
-        "AssociatePublicIpAddress": "false",
+        "AssociatePublicIpAddress": true,
         "ImageId": {
           "Ref": "ImageId"
         },
@@ -1001,7 +1189,7 @@
         },
         "SecurityGroups": [
           {
-            "Ref": "PrivateSecurityGroup"
+            "Ref": "SecurityGroup"
           }
         ],
         "InstanceType": {
@@ -1077,61 +1265,6 @@
         }
       }
     },
-    "ElasticLoadBalancer": {
-      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
-      "Properties": {
-        "Subnets": [
-          {
-            "Ref": "PublicSubnet1"
-          },
-          {
-            "Ref": "PublicSubnet2"
-          }
-        ],
-        "SecurityGroups": [
-          {
-            "Ref": "SecurityGroup"
-          }
-        ],
-        "CrossZone": "true",
-        "Scheme": "internet-facing",
-        "LoadBalancerName": {
-          "Fn::Join": [
-            "",
-            [
-              {
-                "Ref": "ClusterName"
-              },
-              "-lb"
-            ]
-          ]
-        },
-        "Listeners": [
-          {
-            "LoadBalancerPort": "443",
-            "InstancePort": "443",
-            "InstanceProtocol": "HTTPS",
-            "Protocol": "HTTPS",
-            "SSLCertificateId": {
-              "Ref": "SslCertificateArn"
-            }
-          },
-          {
-            "LoadBalancerPort": "22",
-            "InstancePort": "22",
-            "InstanceProtocol": "TCP",
-            "Protocol": "TCP"
-          }
-        ],
-        "HealthCheck": {
-          "Target": "HTTPS:443/",
-          "HealthyThreshold": "3",
-          "UnhealthyThreshold": "5",
-          "Interval": "30",
-          "Timeout": "5"
-        }
-      }
-    },
     "AutoScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "Properties": {
@@ -1158,10 +1291,10 @@
         "HealthCheckGracePeriod": "20",
         "VPCZoneIdentifier": [
           {
-            "Ref": "PrivateSubnet1"
+            "Ref": "PublicSubnet1"
           },
           {
-            "Ref": "PrivateSubnet2"
+            "Ref": "PublicSubnet2"
           }
         ],
         "LaunchConfigurationName": {
