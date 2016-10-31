@@ -31,13 +31,14 @@ healthCheck:
   {{parameter "uuid" logicalId="UUID"}}
   {{parameter "vpc_id" logicalId="VpcId" description="[required] VPC to create the cluster in."}}
 
-{{
-  parameter "m:core" "base"
-  logicalId="VPCCIDR"
-  type="String"
-  description="[required] VpcCidr"
-  constraintDescription="You need to specify VPCCidr"
-}}
+  {{parameter "m:core" "cidr_range"
+    logicalId="VPCCIDR"
+    allowedPattern="(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    maxLength="18"
+    minLength="9"
+    description="VPC CIDR (use the choosen below)"
+    constraintDescription="must be a valid CIDR range formatted as x.x.x.x/x"
+  }}
 
   {{#each publicSubnet}}
     {{
@@ -48,7 +49,7 @@ healthCheck:
   {{/each}}
 
   {{parameter "m:core" "arn"
-    description="[Required] Existing SSL Certificate ARN"
+    description="[Required] Existing SSL Certificate ARN for Elastic Load Balancer"
     logicalId="SslCertificateArn"}}
 
   {{parameter "m:core" "cidr_range"
