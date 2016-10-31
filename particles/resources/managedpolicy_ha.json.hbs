@@ -93,12 +93,45 @@
         },
          {
             "Condition": {},
-            "Action": [
-                "autoscaling:SetDesiredCapacity",
-                "autoscaling:PutScalingPolicy",
-                "autoscaling:UpdateAutoScalingGroup"
-             ],
+            "Action": "autoscaling:*",
             "Resource": "*",
+            "Effect": "Allow"
+        },
+         {
+            "Condition": {},
+            "Action": [
+                "ec2:RevokeSecurityGroupIngress",
+                "ec2:RevokeSecurityGroupEgress",
+                "ec2:DeleteSecurityGroup"
+             ],
+            "Resource": [
+                {"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"security-group/SecurityGroup*"]]},
+                {"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"security-group/ELBSecurityGroup*"]]}
+            ],
+            "Effect": "Allow"
+        },
+         {
+            "Condition": {},
+            "Action": [
+                "elasticloadbalancer:DeleteLoadBalancer"
+             ],
+            "Resource": [
+                {"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"loadbalancer/ElasticLoadBalancer"]]}
+            ],
+            "Effect": "Allow"
+        },
+         {
+            "Condition": {},
+            "Action": [
+                "iam:DeleteRole",
+                "iam:RemoveRoleFromInstanceProfile",
+                "iam:GetPolicy"
+             ],
+            "Resource": [
+                {"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"role/SecurityGroup*"]]},
+                {"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"policy/twanscal*"]]},
+                {"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"instance-profile/twanscal*"]]}
+            ],
             "Effect": "Allow"
         },
          {
@@ -121,7 +154,8 @@
                 "cloudwatch:ListMetrics",
                 "cloudwatch:PutMetricAlarm",
                 "cloudwatch:PutMetricData",
-                "cloudwatch:DescribeAlarms"
+                "cloudwatch:DescribeAlarms",
+                "cloudwatch:DeleteAlarms"
              ],
             "Resource": "*",
             "Effect": "Allow"
@@ -129,14 +163,47 @@
          {
             "Condition": {},
             "Action": [
-                "sqs:ListQueues",
-                "sqs:CreateQueue"
+                "sqs:ListQueues"
              ],
+            "Resource": [
+                {"Fn::Join": [":",["arn:aws:sqs",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"*"]]}
+            ],
+            "Effect": "Allow"
+        },
+         {
+            "Condition": {},
+            "Action": "*",
             "Resource": [
                 { "Fn::Join": [ "",
                     [{"Fn::Join": [":",["arn:aws:sqs",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},""]]},
+                    "ESS-",
                     {{helper "m:core" "propertyValue" clusterName}},
-                    "/*"]]
+                    "-queue"
+                    ]]
+                }
+            ],
+            "Effect": "Allow"
+        },
+         {
+            "Condition": {},
+            "Action": [
+                "sns:ListTopics"
+             ],
+            "Resource": [
+                {"Fn::Join": [":",["arn:aws:sns",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"*"]]}
+            ],
+            "Effect": "Allow"
+        },
+         {
+            "Condition": {},
+            "Action": "*",
+            "Resource": [
+                { "Fn::Join": [ "",
+                    [{"Fn::Join": [":",["arn:aws:sns",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},""]]},
+                    "ESS-",
+                    {{helper "m:core" "propertyValue" clusterName}},
+                    "-topic"
+                    ]]
                 }
             ],
             "Effect": "Allow"

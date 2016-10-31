@@ -14,7 +14,7 @@ publicSubnet:
 healthCheck:
   Target: HTTPS:443/
   HealthyThreshold: 3
-  UnhealthyThreshold: 5
+  UnhealthyThreshold: 7
   Interval: 30
   Timeout: 10
 ---
@@ -154,6 +154,7 @@ healthCheck:
     loadBalancerName='{"Fn::Join": ["",[{"Ref": "ClusterName"},"-lb"]]}'
     lbCookieStickinessPolicy='[ {"PolicyName": "ESSELBPolicy"} ]'
     securityGroups='[ { "Ref": "ELBSecurityGroup" } ]'
+    connectionSettings='{ "IdleTimeout": 600 }'
     listeners=(
       partial 'listener'
       policyNames="ESSELBPolicy"
