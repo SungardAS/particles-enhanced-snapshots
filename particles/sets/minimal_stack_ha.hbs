@@ -73,15 +73,18 @@ healthCheck:
   {{resource 'instanceprofile' logicalId="InstanceProfileEsAdmin"
     roleSelectLogicalId="RoleSelect"
     definedRoleLogicalId="DefinedRole"
+    retain="true"
   }}
 
   {{resource 'role' logicalId="EsAdmin"
     definedRoleLogicalId="DefinedRole"
+    retain="true"
   }}
 
   {{resource 'managedpolicy_ha' logicalId="ManagedPolicy"
     definedRoleLogicalId="DefinedRole"
     clusterName=(ref "ClusterName")
+    retain="true"
   }}
 
   {{set "m:core" "true_false" parameterLogicalId="CreateSecurityRules" default="true"}}

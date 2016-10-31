@@ -61,9 +61,9 @@ healthCheck:
     constraintDescription="must be a valid CIDR range formatted as x.x.x.x/x"
   }}
 
-  {{resource 'instanceprofile_mp' logicalId="InstanceProfileEsAdmin"}}
-  {{resource 'role' logicalId="EsAdmin"}}
-  {{resource 'managedpolicy_ha' logicalId="ManagedPolicy" clusterName=(ref "ClusterName")}}
+  {{resource 'instanceprofile_mp' logicalId="InstanceProfileEsAdmin" retain="true"}}
+  {{resource 'role' logicalId="EsAdmin" retain="true"}}
+  {{resource 'managedpolicy_ha' logicalId="ManagedPolicy" clusterName=(ref "ClusterName") retain="true"}}
 
   {{#each ingressPortsSSH}}
     {{

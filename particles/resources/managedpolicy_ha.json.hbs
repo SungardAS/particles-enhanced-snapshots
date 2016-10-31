@@ -1,5 +1,6 @@
 {{#resource}}
          "Type": "AWS::IAM::ManagedPolicy",
+           {{#if retain}}"DeletionPolicy" : "Retain",{{/if}}
 	"Condition" : "{{definedRoleLogicalId}}",
          "Properties": {
             "Description": "Policy es admin role",
@@ -22,6 +23,8 @@
               "ec2:DescribeRegions",
               "ec2:DescribeSnapshotAttribute",
               "ec2:DescribeSnapshots",
+              "ec2:DescribeNetworkAcls",
+              "ec2:DescribeSecurityGroups",
               "ec2:DescribeTags",
               "ec2:DescribeVolumeAttribute",
               "ec2:DescribeVolumeStatus",
@@ -99,49 +102,45 @@
         },
          {
             "Condition": {},
-            "Action": [
-                "ec2:RevokeSecurityGroupIngress",
-                "ec2:RevokeSecurityGroupEgress",
-                "ec2:DeleteSecurityGroup"
-             ],
+            "Action": "ec2:*",
             "Resource": [
-                {"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"security-group/SecurityGroup*"]]},
-                {"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"security-group/ELBSecurityGroup*"]]}
+                {"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"security-group/*"]]}
             ],
             "Effect": "Allow"
         },
          {
             "Condition": {},
             "Action": [
-                "elasticloadbalancer:DeleteLoadBalancer"
+                "elasticloadbalancing:DeleteLoadBalancer"
              ],
             "Resource": [
-                {"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"loadbalancer/ElasticLoadBalancer"]]}
+                { "Fn::Join": [ "",
+                    [{"Fn::Join": [":",["arn:aws:elasticloadbalancing",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"loadbalancer/"]]},
+                    {{helper "m:core" "propertyValue" clusterName}},
+                    "-lb"
+                    ]]
+                }
             ],
             "Effect": "Allow"
         },
          {
             "Condition": {},
-            "Action": [
-                "iam:DeleteRole",
-                "iam:RemoveRoleFromInstanceProfile",
-                "iam:GetPolicy"
-             ],
+            "Action": "iam:*",
             "Resource": [
                 { "Fn::Join": [ "",
-                    [{"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"role/"]]},
+                    [{"Fn::Join": [":",["arn:aws:iam:",{"Ref": "AWS::AccountId"},"role/"]]},
                     { "Ref" : "AWS::StackName" },
                     "*"
                     ]]
                 },
                 { "Fn::Join": [ "",
-                    [{"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"policy/"]]},
+                    [{"Fn::Join": [":",["arn:aws:iam:",{"Ref": "AWS::AccountId"},"policy/"]]},
                     { "Ref" : "AWS::StackName" },
                     "*"
                     ]]
                 },
                 { "Fn::Join": [ "",
-                    [{"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"instance-profile/"]]},
+                    [{"Fn::Join": [":",["arn:aws:iam:",{"Ref": "AWS::AccountId"},"instance-profile/"]]},
                     { "Ref" : "AWS::StackName" },
                     "*"
                     ]]
