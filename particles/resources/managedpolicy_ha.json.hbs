@@ -128,9 +128,24 @@
                 "iam:GetPolicy"
              ],
             "Resource": [
-                {"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"role/SecurityGroup*"]]},
-                {"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"policy/twanscal*"]]},
-                {"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"instance-profile/twanscal*"]]}
+                { "Fn::Join": [ "",
+                    [{"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"role/"]]},
+                    { "Ref" : "AWS::StackName" },
+                    "*"
+                    ]]
+                },
+                { "Fn::Join": [ "",
+                    [{"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"policy/"]]},
+                    { "Ref" : "AWS::StackName" },
+                    "*"
+                    ]]
+                },
+                { "Fn::Join": [ "",
+                    [{"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"instance-profile/"]]},
+                    { "Ref" : "AWS::StackName" },
+                    "*"
+                    ]]
+                }
             ],
             "Effect": "Allow"
         },
