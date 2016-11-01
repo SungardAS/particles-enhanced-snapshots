@@ -5,16 +5,18 @@ ingressPorts:
 ingressPortsSSH:
   - 22
 privateIngressPorts:
-  - 22
-  - 80
-  - 443
   - 6442
-privateSubnet:
-  - 1
-  - 2
+  - 61614
+  - 61616
 publicSubnet:
   - 1
   - 2
+healthCheck:
+  Target: HTTPS:443/
+  HealthyThreshold: 3
+  UnhealthyThreshold: 7
+  Interval: 30
+  Timeout: 10
 ---
 
   {{parameter "key_name" logicalId="KeyName"}}
@@ -26,25 +28,29 @@ publicSubnet:
   {{parameter "ssh_location" logicalId="SshLocation"}}
   {{parameter "bucket_name" logicalId="BucketName"}}
   {{parameter "cluster_name" logicalId="ClusterName"}}
+  {{parameter "uuid" logicalId="UUID"}}
+  {{parameter "vpc_id" logicalId="VpcId" description="[required] VPC to create the cluster in."}}
 
-  {{#each privateSubnet}}
-    {{
-      parameter "subnet_id"
-      logicalId=(concat "PrivateSubnet" this)
-      description="[Required] Network for instances"
-    }}
-  {{/each}}
+  {{parameter "m:core" "cidr_range"
+    logicalId="VPCCIDR"
+    allowedPattern="(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    maxLength="18"
+    minLength="9"
+    description="VPC CIDR (use the choosen below)"
+    constraintDescription="must be a valid CIDR range formatted as x.x.x.x/x"
+  }}
 
   {{#each publicSubnet}}
     {{
       parameter "subnet_id"
       logicalId=(concat "PublicSubnet" this)
-      description="[Required] Network for Elastic Load Balancer"
+      description="[Required] Network for Elastic Load Balancer. Network defines region to operate in."
     }}
   {{/each}}
 
-  {{parameter "ssl_certificate_arn" logicalId="SslCertificateArn"}}
-  {{parameter "vpc_id" logicalId="VpcId" description="[required] VPC to create the instance in."}}
+  {{parameter "m:core" "arn"
+    description="[Required] Existing SSL Certificate ARN for Elastic Load Balancer"
+    logicalId="SslCertificateArn"}}
 
   {{parameter "m:core" "cidr_range"
     logicalId="SourceCIDR"
@@ -55,9 +61,9 @@ publicSubnet:
     constraintDescription="must be a valid CIDR range formatted as x.x.x.x/x"
   }}
 
-  {{resource 'instanceprofile_mp' logicalId="InstanceProfileEsAdmin"}}
-  {{resource 'role' logicalId="EsAdmin"}}
-  {{resource 'managedpolicy' logicalId="ManagedPolicy"}}
+  {{resource 'instanceprofile_mp' logicalId="InstanceProfileEsAdmin" retain="true"}}
+  {{resource 'role' logicalId="EsAdmin" retain="true"}}
+  {{resource 'managedpolicy_ha' logicalId="ManagedPolicy" clusterName=(ref "ClusterName") retain="true"}}
 
   {{#each ingressPortsSSH}}
     {{
@@ -66,7 +72,7 @@ publicSubnet:
       logicalId=(concat "SecurityGroupIngress" this)
       properties=(
         partial "security_group_ingress_properties"
-        cidrLogicalId="SshLocation"
+        cidrLogicalId="VPCCIDR"
         securityGroupId='{"Fn::GetAtt": ["SecurityGroup","GroupId"]}'
         fromPort=this
         toPort=this
@@ -81,7 +87,7 @@ publicSubnet:
       logicalId=(concat "SecurityGroupIngress" this)
       properties=(
         partial "security_group_ingress_properties"
-        cidrLogicalId="SourceCIDR"
+        cidrLogicalId="VPCCIDR"
         securityGroupId='{"Fn::GetAtt": ["SecurityGroup","GroupId"]}'
         fromPort=this
         toPort=this
@@ -96,12 +102,66 @@ publicSubnet:
       logicalId=(concat "PrivateSecurityGroupIngress" this)
       properties=(
         partial "security_group_ingress_properties"
-        cidr="0.0.0.0/0"
-        securityGroupId='{"Fn::GetAtt": ["PrivateSecurityGroup","GroupId"]}'
+        cidrLogicalId="VPCCIDR"
+        securityGroupId='{"Fn::GetAtt": ["SecurityGroup","GroupId"]}'
         fromPort=this
         toPort=this
       )
     }}
   {{/each}}
 
-  {{set 'module:particles-ec2' 'security_group_output_all' securityGroupLogicalId="SecurityGroup"}}
+  {{#each ingressPortsSSH}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::SecurityGroupIngress"
+      logicalId=(concat "ELBSecurityGroupIngress" this)
+      properties=(
+        partial "security_group_ingress_properties"
+        cidrLogicalId="SshLocation"
+        securityGroupId='{"Fn::GetAtt": ["ELBSecurityGroup","GroupId"]}'
+        fromPort=this
+        toPort=this
+      )
+    }}
+  {{/each}}
+
+  {{#each ingressPorts}}
+    {{
+      resource "m:core" "base"
+      type="AWS::EC2::SecurityGroupIngress"
+      logicalId=(concat "ELBSecurityGroupIngress" this)
+      properties=(
+        partial "security_group_ingress_properties"
+        cidrLogicalId="SourceCIDR"
+        securityGroupId='{"Fn::GetAtt": ["ELBSecurityGroup","GroupId"]}'
+        fromPort=this
+        toPort=this
+      )
+    }}
+  {{/each}}
+
+  {{resource 'sns_topic'
+    logicalId="SnsTopic"
+    clusterNameLogicalId=(ref "ClusterName")
+  }}
+
+  {{
+    resource "m:ec2" "load_balancer"
+    logicalId="ElasticLoadBalancer"
+    scheme='internet-facing'
+    subnets='[ {"Ref": "PublicSubnet1"}, {"Ref": "PublicSubnet2"} ]'
+    crossZone='true'
+    loadBalancerName='{"Fn::Join": ["",[{"Ref": "ClusterName"},"-lb"]]}'
+    lbCookieStickinessPolicy='[ {"PolicyName": "ESSELBPolicy"} ]'
+    securityGroups='[ { "Ref": "ELBSecurityGroup" } ]'
+    connectionSettings='{ "IdleTimeout": 600 }'
+    listeners=(
+      partial 'listener'
+      policyNames="ESSELBPolicy"
+      sslCertificateArnLogicalId=(ref "SslCertificateArn")
+    )
+  }}
+
+
+  {{set 'm:vpc' 'security_group/output_all' securityGroupLogicalId="SecurityGroup"}}
+  {{set 'm:ec2' 'load_balancer/output_all'  loadBalancerLogicalId="ElasticLoadBalancer"}}

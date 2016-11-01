@@ -2,7 +2,7 @@
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "Properties": {
         "LoadBalancerNames": [
-          { "Ref": "{{elbLogicalId}}"}
+          {{helper "m:core" "propertyValue" elbLogicalId}}
         ],
         "NotificationConfigurations": [
           {
@@ -21,9 +21,7 @@
         "HealthCheckType": "ELB",
         "HealthCheckGracePeriod": "20",
         "VPCZoneIdentifier": {{helper "m:core" "propertyValue" vpcZoneIdentifier}},
-        "LaunchConfigurationName": {
-          "Ref": "{{launchConfigurationLogicalId}}"
-        },
+        "LaunchConfigurationName": {{helper "m:core" "propertyValue" launchConfigurationLogicalId}},
         "MinSize": "{{clusterSize}}",
         "MaxSize": "{{clusterSize}}",
         "Tags" : [
@@ -33,13 +31,9 @@
                 "Fn::Join": [
                     "",
                     [
-                    {
-                        "Ref": "{{nameTagLogicalId}}"
-                    },
+                    {{helper "m:core" "propertyValue" nameTagLogicalId}},
                     "-",
-                    {
-                        "Ref": "{{clusterNameLogicalId}}"
-                    }
+                    {{helper "m:core" "propertyValue" clusterNameLogicalId}}
                     ]
                 ]
             },

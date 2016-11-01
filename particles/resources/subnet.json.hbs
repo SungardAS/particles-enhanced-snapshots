@@ -1,8 +1,0 @@
-{{#resource}}
-      "Type" : "AWS::EC2::Subnet",
-      "Properties" : {
-        "VpcId" : { "Ref" : "{{vpcLogicalId}}" },
-        "CidrBlock" : {{helper "m:core" "propertyValue" cidrBlock}},
-        "AvailabilityZone" : {{helper "m:core" "propertyValue" availabilityZone}}
-      }
-{{/resource}}

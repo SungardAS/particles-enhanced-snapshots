@@ -1,0 +1,8 @@
+{{
+parameter "m:core" "base"
+type="String"
+description="[optional] UUID - unique id of system, it can be used to integrate with other systems"
+maxLength="36"
+allowedPattern="(^$)|(^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)"
+constraintDescription="must be a valid UUID"
+}}

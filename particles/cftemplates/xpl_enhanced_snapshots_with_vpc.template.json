@@ -74,7 +74,7 @@
       "Value": {
         "Ref": "Instance"
       },
-      "Description": "Instance ID for the Instance resource"
+      "Description": "ID for Instance"
     },
     "InstanceAvailabilityZone": {
       "Value": {
@@ -128,13 +128,13 @@
           "GroupId"
         ]
       },
-      "Description": "Group ID for the SecurityGroup resource"
+      "Description": "Group ID for SecurityGroup"
     },
     "SecurityGroupName": {
       "Value": {
         "Ref": "SecurityGroup"
       },
-      "Description": "Name for the SecurityGroup resource"
+      "Description": "Group Name for SecurityGroup"
     }
   },
   "Parameters": {
@@ -226,6 +226,13 @@
       "MaxLength": "5",
       "MinLength": "4",
       "ConstraintDescription": "[true|false]"
+    },
+    "UUID": {
+      "Type": "String",
+      "AllowedPattern": "(^$)|(^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)",
+      "MaxLength": "36",
+      "Description": "[optional] UUID - unique id of system, it can be used to integrate with other systems",
+      "ConstraintDescription": "must be a valid UUID"
     },
     "SourceCIDR": {
       "Type": "String",
@@ -620,6 +627,14 @@
                 "env": {
                   "CUSTOM_BUCKET_NAME": {
                     "Ref": "BucketName"
+                  }
+                }
+              },
+              "002": {
+                "command": "sed -i \"/export PATH/i export UUID=\"$UUID\" \" /etc/init.d/tomcat8 ",
+                "env": {
+                  "UUID": {
+                    "Ref": "UUID"
                   }
                 }
               }

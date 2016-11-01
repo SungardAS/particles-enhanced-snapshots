@@ -1,5 +1,6 @@
 {{#resource}}
        "Type": "AWS::IAM::Role",
+         {{#if retain}}"DeletionPolicy" : "Retain",{{/if}}
 	"Condition" : "{{definedRoleLogicalId}}",
          "Properties": {
             "AssumeRolePolicyDocument": {

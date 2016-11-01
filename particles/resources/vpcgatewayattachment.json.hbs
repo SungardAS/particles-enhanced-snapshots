@@ -1,11 +1,7 @@
-{{#resource}}
-       "Type" : "AWS::EC2::VPCGatewayAttachment",
-       "Properties" : {
-         "VpcId" : {
-           "Ref" : "{{vpcLogicalId}}"
-         },
-         "InternetGatewayId" : {
-           "Ref" : "{{internetGatewayLogicalId}}"
-         }
-       }
+{{#resource "m:core" "base" type="AWS::EC2::VPCGatewayAttachment"}}
+  {{#helper "m:core" "properties"}}
+    {{helper "m:core" "property" "VpcId"}}
+    {{helper "m:core" "property" "InternetGatewayId"}}
+    {{helper "m:core" "property" "Tags" optional=true}}
+  {{/helper}}
 {{/resource}}

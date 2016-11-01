@@ -3,53 +3,38 @@
 }}
   {{set "minimal_stack_ha_mp"}}
 
-  {{
-    resource 'security_group'
+  {{resource "m:vpc" "security_group"
     logicalId="SecurityGroup"
-    nameTagLogicalId="NameTag"
-    vpcId='{"Ref": "VpcId"}'
+    groupDescription="Enhanced Snapshot"
+    tags='[ { "Key": "Name", "Value": { "Ref": "NameTag" } } ]'
+    vpcId=(ref "VpcId")
   }}
 
-  {{
-    resource 'security_group'
-    logicalId="PrivateSecurityGroup"
-    nameTagLogicalId="NameTag"
-    vpcId='{"Ref": "VpcId"}'
+  {{resource "m:vpc" "security_group"
+    logicalId="ELBSecurityGroup"
+    groupDescription="ELB Enhanced Snapshot"
+    tags='[ { "Key": "Name", "Value": { "Ref": "NameTag" } } ]'
+    vpcId=(ref "VpcId")
   }}
 
-  {{
-    resource 'sns_topic'
-    logicalId="SnsTopic"
-    clusterNameLogicalId="ClusterName"
-  }}
-
-  {{
-    resource 'launchconfiguration'
+  {{resource 'launchconfiguration'
     logicalId="LaunchConfiguration"
     imageId='{ "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "ImageID"]}'
-    keyNameLogicalId="KeyName"
-    instanceTypeLogicalId="InstanceType"
+    keyNameLogicalId=(ref "KeyName")
+    instanceTypeLogicalId=(ref "InstanceType")
     autoScalingGroupLogicalId="AutoScalingGroup"
-    privateSecurityGroupLogicalId="PrivateSecurityGroup"
+    securityGroupLogicalId=(ref "SecurityGroup")
+    associatePublicIpAddress="true"
   }}
 
-  {{
-    resource 'elasticloadbalancer'
-    logicalId="ElasticLoadBalancer"
-    subnets='[ {"Ref": "PublicSubnet1"}, {"Ref": "PublicSubnet2"} ]'
-    securityGroupLogicalId="SecurityGroup"
-    sslCertificateArnLogicalId="SslCertificateArn"
-    clusterNameLogicalId="ClusterName"
-  }}
-
-  {{
-    resource 'autoscalinggroup'
+  {{resource 'autoscalinggroup'
     logicalId="AutoScalingGroup"
-    elbLogicalId="ElasticLoadBalancer"
-    vpcZoneIdentifier='[ {"Ref": "PrivateSubnet1"}, {"Ref": "PrivateSubnet2"} ]'
-    launchConfigurationLogicalId="LaunchConfiguration"
-    clusterNameLogicalId="ClusterName"
+    elbLogicalId=(ref "ElasticLoadBalancer")
+    vpcZoneIdentifier='[ {"Ref": "PublicSubnet1"}, {"Ref": "PublicSubnet2"} ]'
+    launchConfigurationLogicalId=(ref "LaunchConfiguration")
+    clusterNameLogicalId=(ref "ClusterName")
     clusterSize="1"
-    nameTagLogicalId="NameTag"
+    nameTagLogicalId=(ref "NameTag")
   }}
+
 {{/layout}}

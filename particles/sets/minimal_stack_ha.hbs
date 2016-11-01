@@ -5,28 +5,18 @@ ingressPorts:
 ingressPortsSSH:
   - 22
 privateIngressPorts:
-  - 22
-  - 80
-  - 443
   - 6442
-privateRoute:
+  - 61614
+  - 61616
+publicSubnet:
   - 1
   - 2
-privateRouteTable:
-  - 1
-  - 2
-elasticIp:
-  - 1
-  - 2
-natGateway:
-  - 1
-  - 2
-privateRouteTableAssoc:
-  - 1
-  - 2
-publicRouteTableAssoc:
-  - 1
-  - 2
+healthCheck:
+  Target: HTTPS:443/
+  HealthyThreshold: 3
+  UnhealthyThreshold: 7
+  Interval: 30
+  Timeout: 10
 ---
 
   {{parameter "key_name" logicalId="KeyName"}}
@@ -39,21 +29,30 @@ publicRouteTableAssoc:
   {{parameter "role_select" logicalId="RoleSelect"}}
   {{parameter "bucket_name" logicalId="BucketName"}}
   {{parameter "cluster_name" logicalId="ClusterName"}}
+  {{parameter "vpc_id" logicalId="VpcId" description="[required] VPC to create the cluster in."}}
+  {{parameter "uuid" logicalId="UUID"}}
 
   {{parameter "m:core" "cidr_range"
     logicalId="VPCCIDR"
     allowedPattern="(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
     maxLength="18"
     minLength="9"
-    default="10.0.0.0/16"
-    description="[Required]CIDR address of VPC will be created for infrastructure"
+    description="VPC CIDR (use the choosen below)"
     constraintDescription="must be a valid CIDR range formatted as x.x.x.x/x"
   }}
 
 
-  {{parameter "private_subnet_ids" logicalId="PrivateSubnetIds"}}
-  {{parameter "public_subnet_ids" logicalId="PublicSubnetIds"}}
-  {{parameter "ssl_certificate_arn" logicalId="SslCertificateArn"}}
+  {{#each publicSubnet}}
+    {{
+      parameter "subnet_id"
+      logicalId=(concat "PublicSubnet" this)
+      description="[Required] Network for Elastic Load Balancer. Network defines region to operate in."
+    }}
+  {{/each}}
+
+  {{parameter "m:core" "arn"
+    description="[Required] Existing SSL Certificate ARN for Elastic Load Balancer"
+    logicalId="SslCertificateArn"}}
 
 
   {{
@@ -71,20 +70,21 @@ publicRouteTableAssoc:
     constraintDescription="must be a valid CIDR range formatted as x.x.x.x/x"
   }}
 
-  {{
-    resource 'instanceprofile' logicalId="InstanceProfileEsAdmin"
+  {{resource 'instanceprofile' logicalId="InstanceProfileEsAdmin"
     roleSelectLogicalId="RoleSelect"
     definedRoleLogicalId="DefinedRole"
+    retain="true"
   }}
 
-  {{
-    resource 'role' logicalId="EsAdmin"
+  {{resource 'role' logicalId="EsAdmin"
     definedRoleLogicalId="DefinedRole"
+    retain="true"
   }}
 
-  {{
-    resource 'managedpolicy' logicalId="ManagedPolicy"
+  {{resource 'managedpolicy_ha' logicalId="ManagedPolicy"
     definedRoleLogicalId="DefinedRole"
+    clusterName=(ref "ClusterName")
+    retain="true"
   }}
 
   {{set "m:core" "true_false" parameterLogicalId="CreateSecurityRules" default="true"}}
@@ -97,7 +97,7 @@ publicRouteTableAssoc:
       logicalId=(concat "SecurityGroupIngress" this)
       properties=(
         partial "security_group_ingress_properties"
-        cidrLogicalId="SshLocation"
+        cidrLogicalId="VPCCIDR"
         securityGroupId='{"Fn::GetAtt": ["SecurityGroup","GroupId"]}'
         fromPort=this
         toPort=this
@@ -113,7 +113,7 @@ publicRouteTableAssoc:
       logicalId=(concat "SecurityGroupIngress" this)
       properties=(
         partial "security_group_ingress_properties"
-        cidrLogicalId="SourceCIDR"
+        cidrLogicalId="VPCCIDR"
         securityGroupId='{"Fn::GetAtt": ["SecurityGroup","GroupId"]}'
         fromPort=this
         toPort=this
@@ -125,113 +125,71 @@ publicRouteTableAssoc:
     {{
       resource "m:core" "base"
       type="AWS::EC2::SecurityGroupIngress"
-      logicalId=(concat "PrivateSecurityGroupIngress" this)
+      logicalId=(concat "SecurityGroupIngress" this)
       properties=(
         partial "security_group_ingress_properties"
-        cidr="0.0.0.0/0"
-        securityGroupId='{"Fn::GetAtt": ["PrivateSecurityGroup","GroupId"]}'
+        cidrLogicalId="VPCCIDR"
+        securityGroupId='{"Fn::GetAtt": ["SecurityGroup","GroupId"]}'
         fromPort=this
         toPort=this
       )
     }}
   {{/each}}
 
-  {{#each privateRouteTable}}
+  {{#each ingressPortsSSH}}
     {{
       resource "m:core" "base"
-      type="AWS::EC2::RouteTable"
-      logicalId=(concat "PrivateRouteTable" this)
+      type="AWS::EC2::SecurityGroupIngress"
+      condition="CreateSecurityRulesIsTrueCondition"
+      logicalId=(concat "ELBSecurityGroupIngress" this)
       properties=(
-        partial "routetable_properties"
-        vpcLogicalId="VPC"
+        partial "security_group_ingress_properties"
+        cidrLogicalId="SshLocation"
+        securityGroupId='{"Fn::GetAtt": ["ELBSecurityGroup","GroupId"]}'
+        fromPort=this
+        toPort=this
       )
     }}
   {{/each}}
 
-  {{#each elasticIp}}
+  {{#each ingressPorts}}
     {{
       resource "m:core" "base"
-      type="AWS::EC2::EIP"
-      logicalId=(concat "ElasticIp" this)
-      properties='{"Domain" : "vpc"}'
-    }}
-  {{/each}}
-
-  {{#each natGateway}}
-    {{
-      resource "m:core" "base"
-      type="AWS::EC2::NatGateway"
-      logicalId=(concat "NatGateway" this)
-      dependsOn=(concat "ElasticIp" this)
+      type="AWS::EC2::SecurityGroupIngress"
+      condition="CreateSecurityRulesIsTrueCondition"
+      logicalId=(concat "ELBSecurityGroupIngress" this)
       properties=(
-        partial "natgateway_properties"
-        elasticIpLogicalId=(concat "ElasticIp" this)
-        publicSubnetLogicalId=(concat "PublicSubnet" this)
+        partial "security_group_ingress_properties"
+        cidrLogicalId="SourceCIDR"
+        securityGroupId='{"Fn::GetAtt": ["ELBSecurityGroup","GroupId"]}'
+        fromPort=this
+        toPort=this
       )
     }}
   {{/each}}
 
-  {{
-    resource "m:core" "base"
-    type="AWS::EC2::RouteTable"
-    logicalId="PublicRouteTable"
-    properties=(
-        partial "routetable_properties"
-        vpcLogicalId="VPC"
-    )
+  {{resource 'sns_topic'
+    logicalId="SnsTopic"
+    clusterNameLogicalId=(ref "ClusterName")
   }}
 
   {{
-    resource "m:core" "base"
-    type="AWS::EC2::Route"
-    dependsOn="GatewayToInternet"
-    logicalId="PublicRoute"
-    properties=(
-        partial "route_properties"
-        routeTableLogicalId="PublicRouteTable"
-        desinationCidr="0.0.0.0/0"
-        internetGatewayLogicalId="InternetGateway"
+    resource "m:ec2" "load_balancer"
+    logicalId="ElasticLoadBalancer"
+    scheme='internet-facing'
+    subnets='[ {"Ref": "PublicSubnet1"}, {"Ref": "PublicSubnet2"} ]'
+    crossZone='true'
+    loadBalancerName='{"Fn::Join": ["",[{"Ref": "ClusterName"},"-lb"]]}'
+    lbCookieStickinessPolicy='[ {"PolicyName": "ESSELBPolicy"} ]'
+    securityGroups='[ { "Ref": "ELBSecurityGroup" } ]'
+    connectionSettings='{ "IdleTimeout": 600 }'
+    listeners=(
+      partial 'listener'
+      policyNames="ESSELBPolicy"
+      sslCertificateArnLogicalId=(ref "SslCertificateArn")
     )
   }}
 
-  {{#each privateRoute}}
-    {{
-      resource "m:core" "base"
-      type="AWS::EC2::Route"
-      logicalId=(concat "PrivateRoute" this)
-      properties=(
-        partial "route_properties"
-        routeTableLogicalId=(concat "PrivateRouteTable" this)
-        desinationCidr="0.0.0.0/0"
-        natGatewayLogicalId=(concat "NatGateway" this)
-      )
-    }}
-  {{/each}}
 
-  {{#each privateRouteTableAssoc}}
-    {{
-      resource "m:core" "base"
-      type="AWS::EC2::SubnetRouteTableAssociation"
-      logicalId=(concat "PrivateSubnetRouteTableAssociation" this)
-      properties=(
-        partial "routetableassociation_properties"
-        subnetLogicalId=(concat "PrivateSubnet" this)
-        routeTableLogicalId=(concat "PrivateRouteTable" this)
-      )
-    }}
-  {{/each}}
-
-  {{#each publicRouteTableAssoc}}
-    {{
-      resource "m:core" "base"
-      type="AWS::EC2::SubnetRouteTableAssociation"
-      logicalId=(concat "PublicSubnetRouteTableAssociation" this)
-      properties=(
-        partial "routetableassociation_properties"
-        subnetLogicalId=(concat "PublicSubnet" this)
-        routeTableLogicalId="PublicRouteTable"
-      )
-    }}
-  {{/each}}
-
-  {{set 'module:particles-ec2' 'security_group_output_all' securityGroupLogicalId="SecurityGroup"}}
+  {{set 'm:vpc' 'security_group/output_all' securityGroupLogicalId="SecurityGroup"}}
+  {{set 'm:ec2' 'load_balancer/output_all'  loadBalancerLogicalId="ElasticLoadBalancer"}}
