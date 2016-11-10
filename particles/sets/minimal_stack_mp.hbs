@@ -14,12 +14,11 @@ ingressPortsSSH:
   {{mapping "ami_regions" logicalId="RegionMap"}}
   {{parameter "ssh_location" logicalId="SshLocation"}}
   {{parameter "bucket_name" logicalId="BucketName"}}
-  {{parameter "eip" logicalId="EIP"}}
-  {{parameter "eip_usage" logicalId="ElasticIpUsage"}}
+  {{parameter "eip" logicalId="ElasticIP"}}
   {{parameter "uuid" logicalId="UUID"}}
 
   {{condition "defined_eip" logicalId="DefinedEIP"
-    elasticIPLogicalId="ElasticIpUsage"}}
+    elasticIPLogicalId="ElasticIP"}}
 
    {{parameter "m:core" "cidr_range"
     logicalId="SourceCIDR"
