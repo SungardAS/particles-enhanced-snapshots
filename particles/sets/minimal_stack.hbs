@@ -15,11 +15,11 @@ ingressPortsSSH:
   {{parameter "ssh_location" logicalId="SshLocation"}}
   {{parameter "role_select" logicalId="RoleSelect"}}
   {{parameter "bucket_name" logicalId="BucketName"}}
-  {{parameter "eip" logicalId="EIP"}}
+  {{parameter "eip" logicalId="ElasticIP"}}
   {{parameter "uuid" logicalId="UUID"}}
 
   {{condition "defined_eip" logicalId="DefinedEIP"
-    elasticIPLogicalId="EIP"}}
+    elasticIPLogicalId="ElasticIP"}}
   
   {{condition "defined_role" logicalId="DefinedRole"
    roleSelectLogicalId="RoleSelect"}}
