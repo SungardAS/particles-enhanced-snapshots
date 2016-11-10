@@ -15,11 +15,10 @@ ingressPortsSSH:
   {{parameter "ssh_location" logicalId="SshLocation"}}
   {{parameter "bucket_name" logicalId="BucketName"}}
   {{parameter "eip" logicalId="EIP"}}
-  {{parameter "eip_usage" logicalId="ElasticIpUsage"}}
   {{parameter "uuid" logicalId="UUID"}}
 
   {{condition "defined_eip" logicalId="DefinedEIP"
-    elasticIPLogicalId="ElasticIpUsage"}}
+    elasticIPLogicalId="EIP"}}
 
    {{parameter "m:core" "cidr_range"
     logicalId="SourceCIDR"
