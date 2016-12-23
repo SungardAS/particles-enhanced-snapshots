@@ -103,7 +103,7 @@
     },
     "ImageId": {
       "Type": "AWS::EC2::Image::Id",
-      "Default": "ami-9a5ad28d",
+      "Default": "ami-9bd3c48c",
       "Description": "[required] An Enhanced Snapshot EC2 image ID"
     },
     "InstanceType": {
