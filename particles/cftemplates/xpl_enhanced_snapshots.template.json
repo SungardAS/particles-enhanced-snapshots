@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "This template was built to run in us-east-1 and will create resources to run enhanced-snapshots (https://github.com/sungardas/enhanced-snapshots) in the default VPC. Templates for other regions can be found at https://github.com/sungardas/particle-enhanced-snapshots\n",
+  "Description": "This template was built to run in us-east-1 and will create resources to run enhanced-snapshots (https://github.com/sungardas/enhanced-snapshots) in the default VPC. Templates for other regions can be found at https://github.com/sungardas/particle-enhanced-snapshots",
   "Conditions": {
     "DefinedSsh": {
       "Fn::Not": [
