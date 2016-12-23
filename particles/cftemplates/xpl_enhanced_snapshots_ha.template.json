@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "This template was built to run in us-east-1 and will create resources to run enhanced-snapshots (https://github.com/sungardas/enhanced-snapshots) in high availability mode . Templates for other regions can be found at https://github.com/sungardas/particle-enhanced-snapshots\n",
+  "Description": "This template was built to run in us-east-1 and will create resources to run enhanced-snapshots (https://github.com/sungardas/enhanced-snapshots) in high availability mode . Templates for other regions can be found at https://github.com/sungardas/particle-enhanced-snapshots",
   "Conditions": {
     "DefinedRole": {
       "Fn::Equals": [
@@ -103,7 +103,7 @@
     },
     "ImageId": {
       "Type": "AWS::EC2::Image::Id",
-      "Default": "ami-9a5ad28d",
+      "Default": "ami-9bd3c48c",
       "Description": "[required] An Enhanced Snapshot EC2 image ID"
     },
     "InstanceType": {
