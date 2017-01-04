@@ -6,7 +6,7 @@
   "eu-central-1":{"ami":"ami-8ee014e1"},
   "eu-west-1":{"ami":"ami-0f15777c"},
   "sa-east-1":{"ami":"ami-53dc4b3f"},
-  "us-east-1":{"ami":"ami-9bd3c48c"},
+  "us-east-1":{"ami":"ami-6ad5ce7d"},
   "us-west-1":{"ami":"ami-a296d7c2"},
   "us-west-2":{"ami":"ami-1406ca74"}
 }
