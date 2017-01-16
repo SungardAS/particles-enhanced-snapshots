@@ -20,5 +20,10 @@
     subnetId='{"Ref": "AWS::NoValue"}'
   }}
 
+  {{
+    resource 'elastic_ip' logicalId="ElasticIPAssociation"
+    instanceLogicalId="Instance"
+    definedEIPLogicalId="DefinedEIP"
+  }}
 
 {{/layout}}

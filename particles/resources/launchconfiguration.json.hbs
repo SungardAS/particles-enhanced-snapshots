@@ -1,0 +1,177 @@
+{{#resource}}
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "configSets": {
+            "default": [
+              "setKeys",
+              "runEnvVar",
+              "runApp"
+            ]
+          },
+          "setKeys": {
+            "commands": {
+              "001": {
+                "command": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "/usr/bin/aws configure set default.region ",
+                      {
+                        "Ref": "AWS::Region"
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          },
+          "runEnvVar": {
+            "commands": {
+              "001": {
+                "command": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "sed -i \"/export PATH/i ",
+                      "export CUSTOM_BUCKET_NAME=\"$CUSTOM_BUCKET_NAME\"",
+                      "\\nexport STACK_NAME=\"$STACK_NAME\"",
+                      "\\nexport CLUSTER_ID=\"$CLUSTER_ID\"",
+                      "\\nexport UUID=\"$UUID\"",
+                      "\" ",
+                      "/etc/init.d/tomcat8"
+                    ]
+                  ]
+                },
+                "env": {
+                  "CUSTOM_BUCKET_NAME": {
+                    "Ref": "BucketName"
+                  },
+                  "CLUSTER_ID": {
+                    "Ref": "ClusterName"
+                  },
+                  "STACK_NAME": {
+                    "Ref": "AWS::StackName"
+                  },
+                  "UUID": {
+                    "Ref": "UUID"
+                  }
+                }
+              }
+            }
+          },
+          "devMode": {
+            "commands": {
+              "001": {
+                "command": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "sed -i \"/export PATH/i ",
+                      "export JPDA_ADDRESS=\\\"0.0.0.0:8000\\\"",
+                      "\" ",
+                      "/etc/init.d/tomcat8"
+                    ]
+                  ]
+                }
+              },
+              "002": {
+                "command": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "sed -i -e 's@^exec.*$@exec \"$PRGDIR\"/\"$EXECUTABLE\" jpda start \"$\\@\"@g' ",
+                      "/opt/tomcat-latest/bin/startup.sh"
+                    ]
+                  ]
+                }
+              }
+            }
+          },
+          "runApp": {
+              "commands": {
+                "001": {
+                  "command": "service tomcat8 restart"
+                }
+              }
+            }
+          }
+      },
+      "Properties": {
+        "AssociatePublicIpAddress": {{associatePublicIpAddress}},
+        "ImageId": {{helper "m:core" "propertyValue" imageId}},
+        "KeyName": {{helper "m:core" "propertyValue" keyNameLogicalId}},
+        "SecurityGroups": [
+            {{helper "m:core" "propertyValue" securityGroupLogicalId}}
+        ],
+        "InstanceType": {{helper "m:core" "propertyValue" instanceTypeLogicalId}},
+        "IamInstanceProfile": {
+          "Ref": "InstanceProfileEsAdmin"
+        },
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/xvda",
+            "Ebs": {
+              "VolumeSize": {
+                "Ref": "VolumeSize"
+              },
+              "VolumeType": "io1",
+              "Iops": {
+                "Ref": "VolumeIOps"
+              }
+            }
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -ex\n",
+                "# Helper function\n",
+                "function error_exit\n",
+                "{\n",
+                "  /opt/aws/bin/cfn-signal -e 1 -r \"$1\" ",
+                "  --stack ",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "  --resource {{autoScalingGroupLogicalId}} ",
+                "  --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "\n",
+                "  exit 1\n",
+                "}\n",
+                "# Process CloudFormation init definitions\n",
+                "/opt/aws/bin/cfn-init -s ",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                " -r {{logicalId}} ",
+                " -c default ",
+                "    --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                " || error_exit 'Failed to run cfn-init'\n",
+                "# All is well so signal success\n",
+                "/opt/aws/bin/cfn-signal -e 0 -r \"Stack setup complete\" ",
+                "  --stack ",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "  --resource {{autoScalingGroupLogicalId}} ",
+                "  --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "\n",
+                "#EOF"
+              ]
+            ]
+          }
+        }
+      }
+{{/resource}}

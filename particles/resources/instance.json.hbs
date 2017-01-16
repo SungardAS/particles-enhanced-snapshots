@@ -1,15 +1,9 @@
 {{#resource}}  
 "Type": "AWS::EC2::Instance",
   "Metadata": {
-    "AWS::CloudFormation::Authentication": {
-      "S3AccessCreds": {
-        "type": "S3",
-        "buckets": [ "{{s3.bucket}}" ]
-      }
-    },
     "AWS::CloudFormation::Init" : {
       "configSets": {
-        "default": ["setKeys","runApp"]
+        "default": ["setKeys","runEnvVar","runApp"]
       },
       "setKeys": {
         "commands": {
@@ -18,6 +12,18 @@
           }
         }
       },    
+     "runEnvVar": {
+        "commands": {
+          "001": {
+            "command": "sed -i \"/export PATH/i export CUSTOM_BUCKET_NAME=\"$CUSTOM_BUCKET_NAME\" \" /etc/init.d/tomcat8 ",
+            "env": { "CUSTOM_BUCKET_NAME" : {"Ref": "BucketName"} }
+          },
+          "002": {
+            "command": "sed -i \"/export PATH/i export UUID=\"$UUID\" \" /etc/init.d/tomcat8 ",
+            "env": { "UUID" : {"Ref": "UUID"} }
+          }
+        }
+      },
       "runApp": {
         "commands": {
           "001": {

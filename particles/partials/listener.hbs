@@ -1,0 +1,20 @@
+          [{
+            "LoadBalancerPort" : "443",
+            "InstancePort" : "443",
+            "InstanceProtocol": "HTTPS",
+            "Protocol" : "HTTPS",
+            "PolicyNames": [{{helper "m:core" "propertyValue" policyNames}}],
+            "SSLCertificateId": {{helper "m:core" "propertyValue" sslCertificateArnLogicalId}}
+          },
+          {
+            "LoadBalancerPort" : "80",
+            "InstancePort" : "80",
+            "InstanceProtocol": "HTTP",
+            "Protocol" : "HTTP"
+          },
+          {
+            "LoadBalancerPort" : "22",
+            "InstancePort" : "22",
+            "InstanceProtocol": "TCP",
+            "Protocol" : "TCP"
+          }]

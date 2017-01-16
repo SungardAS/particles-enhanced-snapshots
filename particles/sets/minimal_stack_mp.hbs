@@ -13,6 +13,12 @@ ingressPortsSSH:
   {{parameter "iops" logicalId="VolumeIOps"}}
   {{mapping "ami_regions" logicalId="RegionMap"}}
   {{parameter "ssh_location" logicalId="SshLocation"}}
+  {{parameter "bucket_name" logicalId="BucketName"}}
+  {{parameter "eip" logicalId="ElasticIP"}}
+  {{parameter "uuid" logicalId="UUID"}}
+
+  {{condition "defined_eip" logicalId="DefinedEIP"
+    elasticIPLogicalId="ElasticIP"}}
 
    {{parameter "m:core" "cidr_range"
     logicalId="SourceCIDR"
@@ -58,5 +64,5 @@ ingressPortsSSH:
     }}
   {{/each}}
      
-  {{set 'module:particles-ec2' 'instance_output_all' instanceLogicalId="Instance"}}
-  {{set 'module:particles-ec2' 'security_group_output_all' securityGroupLogicalId="SecurityGroup"}}
+  {{set 'm:ec2' 'instance/output_all' instanceLogicalId="Instance"}}
+  {{set 'm:vpc' 'security_group/output_all' securityGroupLogicalId="SecurityGroup"}}

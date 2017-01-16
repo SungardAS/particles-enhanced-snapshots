@@ -1,0 +1,25 @@
+{{#resource}}
+    "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "DisplayName": {
+          "Fn::Join": [
+            "",
+            [
+              "ESS-",
+              {{helper "m:core" "propertyValue" clusterNameLogicalId}},
+              "-topic"
+            ]
+          ]
+        },
+        "TopicName": {
+          "Fn::Join": [
+            "",
+            [
+              "ESS-",
+              {{helper "m:core" "propertyValue" clusterNameLogicalId}},
+              "-topic"
+            ]
+          ]
+        }
+      }
+{{/resource}}

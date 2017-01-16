@@ -1,5 +1,6 @@
 {{#resource}}
          "Type": "AWS::IAM::InstanceProfile",
+         {{#if retain}}"DeletionPolicy" : "Retain",{{/if}}
 	 "Properties": {
             "Path": "/",
     "Roles":{

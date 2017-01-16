@@ -1,15 +1,9 @@
 {{#resource}}  
 "Type": "AWS::EC2::Instance",
   "Metadata": {
-    "AWS::CloudFormation::Authentication": {
-      "S3AccessCreds": {
-        "type": "S3",
-        "buckets": [ "{{s3.bucket}}" ]
-      }
-    },
     "AWS::CloudFormation::Init" : {
       "configSets": {
-        "default": ["setKeys","runApp"]
+        "default": ["setKeys","runEnvVar","runApp"]
       },
       "setKeys": {
         "commands": {
@@ -17,7 +11,19 @@
             "command": {"Fn::Join": ["",["/usr/bin/aws configure set default.region ", {"Ref": "AWS::Region"}]]}
           }
         }
-      },    
+      },
+     "runEnvVar": {
+        "commands": {
+          "001": {
+            "command": "sed -i \"/export PATH/i export CUSTOM_BUCKET_NAME=\"$CUSTOM_BUCKET_NAME\" \" /etc/init.d/tomcat8 ",
+            "env": { "CUSTOM_BUCKET_NAME" : {"Ref": "BucketName"} }
+          },
+          "002": {
+            "command": "sed -i \"/export PATH/i export UUID=\"$UUID\" \" /etc/init.d/tomcat8 ",
+            "env": { "UUID" : {"Ref": "UUID"} }
+          }
+        }
+      },
       "runApp": {
         "commands": {
           "001": {
@@ -27,7 +33,7 @@
       }
     }
   },
-  "Properties": {
+ "Properties": {
     "ImageId": { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "ImageID"]},
     "KeyName": {"Ref": "{{keyNameLogicalId}}" },
     "SecurityGroupIds": [ { "Fn::GetAtt" : ["{{securityGroupLogicalId}}", "GroupId"] } ],

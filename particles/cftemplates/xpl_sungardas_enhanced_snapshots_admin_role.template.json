@@ -1,5 +1,16 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "BucketName": {
+      "Type": "String",
+      "Default": "enhancedsnapshots",
+      "AllowedPattern": "^\\S+$",
+      "MaxLength": "63",
+      "MinLength": "3",
+      "Description": "[required] Use your previously created bucket name for sdfs data or leave default value. Please, follow Amazon S3 Bucket Naming Requirements.",
+      "ConstraintDescription": "Value must be not null or use default name - enhancedsnapshots "
+    }
+  },
   "Resources": {
     "InstanceProfileEsAdmin": {
       "Type": "AWS::IAM::InstanceProfile",
@@ -204,7 +215,18 @@
               "Action": "s3:*",
               "Resource": [
                 "arn:aws:s3:::com.sungardas.enhancedsnapshots*",
-                "arn:aws:s3:::enhancedsnapshots*"
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      {
+                        "Ref": "BucketName"
+                      },
+                      "*"
+                    ]
+                  ]
+                }
               ],
               "Effect": "Allow"
             },

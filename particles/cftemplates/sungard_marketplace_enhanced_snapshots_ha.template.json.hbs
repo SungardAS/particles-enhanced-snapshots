@@ -1,0 +1,40 @@
+{{#layout
+  TemplateDescription=(partial 'template_description_ha')
+}}
+  {{set "minimal_stack_ha_mp"}}
+
+  {{resource "m:vpc" "security_group"
+    logicalId="SecurityGroup"
+    groupDescription="Enhanced Snapshot"
+    tags='[ { "Key": "Name", "Value": { "Ref": "NameTag" } } ]'
+    vpcId=(ref "VpcId")
+  }}
+
+  {{resource "m:vpc" "security_group"
+    logicalId="ELBSecurityGroup"
+    groupDescription="ELB Enhanced Snapshot"
+    tags='[ { "Key": "Name", "Value": { "Ref": "NameTag" } } ]'
+    vpcId=(ref "VpcId")
+  }}
+
+  {{resource 'launchconfiguration'
+    logicalId="LaunchConfiguration"
+    imageId='{ "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "ImageID"]}'
+    keyNameLogicalId=(ref "KeyName")
+    instanceTypeLogicalId=(ref "InstanceType")
+    autoScalingGroupLogicalId="AutoScalingGroup"
+    securityGroupLogicalId=(ref "SecurityGroup")
+    associatePublicIpAddress="true"
+  }}
+
+  {{resource 'autoscalinggroup'
+    logicalId="AutoScalingGroup"
+    elbLogicalId=(ref "ElasticLoadBalancer")
+    vpcZoneIdentifier='[ {"Ref": "PublicSubnet1"}, {"Ref": "PublicSubnet2"} ]'
+    launchConfigurationLogicalId=(ref "LaunchConfiguration")
+    clusterNameLogicalId=(ref "ClusterName")
+    clusterSize="1"
+    nameTagLogicalId=(ref "NameTag")
+  }}
+
+{{/layout}}
