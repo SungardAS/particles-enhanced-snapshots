@@ -1,8 +1,8 @@
 {{
  parameter "m:core" "base"
   type="Number"
-  description="[Required]The number of I/O operations per second (IOPS) that the volume supports. You can use max 30 iops per GB"
+  description="[Required]The number of I/O operations per second (IOPS) that the volume supports. You can use max 50 iops per GB"
   minValue="240"
-  default="1440"
+  default="720"
   constraintDescription="IOPs can be 240 due to min volume size however can be higher"
 }}

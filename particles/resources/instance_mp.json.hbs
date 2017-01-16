@@ -1,12 +1,6 @@
 {{#resource}}  
 "Type": "AWS::EC2::Instance",
   "Metadata": {
-    "AWS::CloudFormation::Authentication": {
-      "S3AccessCreds": {
-        "type": "S3",
-        "buckets": [ "{{s3.bucket}}" ]
-      }
-    },
     "AWS::CloudFormation::Init" : {
       "configSets": {
         "default": ["setKeys","runEnvVar","runApp"]
