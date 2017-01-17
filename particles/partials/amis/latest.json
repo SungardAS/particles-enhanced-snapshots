@@ -1,12 +1,12 @@
 {
-  "ap-northeast-1":{"ami":"ami-3645bd57"},
-  "ap-northeast-2":{"ami":"ami-bceb21d2"},
-  "ap-southeast-1":{"ami":"ami-e29b4481"},
-  "ap-southeast-2":{"ami":"ami-7984ae1a"},
-  "eu-central-1":{"ami":"ami-8ee014e1"},
-  "eu-west-1":{"ami":"ami-0f15777c"},
-  "sa-east-1":{"ami":"ami-53dc4b3f"},
-  "us-east-1":{"ami":"ami-6ad5ce7d"},
-  "us-west-1":{"ami":"ami-a296d7c2"},
-  "us-west-2":{"ami":"ami-1406ca74"}
+  "ap-northeast-1":{"ami":"ami-8a8cfced"},
+  "ap-northeast-2":{"ami":"ami-5b5c8a35"},
+  "ap-southeast-1":{"ami":"ami-2b8f2748"},
+  "ap-southeast-2":{"ami":"ami-25111446"},
+  "eu-central-1":{"ami":"ami-f1ac619e"},
+  "eu-west-1":{"ami":"ami-a092bcd3"},
+  "sa-east-1":{"ami":"ami-ba21bad6"},
+  "us-east-1":{"ami":"ami-3f618429"},
+  "us-west-1":{"ami":"ami-6fa7f70f"},
+  "us-west-2":{"ami":"ami-01c97a61"}
 }
