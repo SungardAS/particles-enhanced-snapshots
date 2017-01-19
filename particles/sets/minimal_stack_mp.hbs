@@ -63,6 +63,43 @@ ingressPortsSSH:
       )
     }}
   {{/each}}
+
+  {{
+    resource "m:core" "base"
+    type="AWS::SSM::Document"
+    logicalId="SSMLinuxFreeze"
+    properties=(
+      partial "ssm_linux_freeze"
+    )
+  }}
+
+  {{
+    resource "m:core" "base"
+    type="AWS::SSM::Document"
+    logicalId="SSMLinuxUnFreeze"
+    properties=(
+      partial "ssm_linux_unfreeze"
+    )
+  }}
+
+  {{
+    resource "m:core" "base"
+    type="AWS::SSM::Document"
+    logicalId="SSMWindowsCreateVSS"
+    properties=(
+      partial "ssm_win_createvss"
+    )
+  }}
+
+  {{
+    resource "m:core" "base"
+    type="AWS::SSM::Document"
+    logicalId="SSMWindowsDeleteVSS"
+    properties=(
+      partial "ssm_win_deletevss"
+    )
+  }}
+
      
   {{set 'm:ec2' 'instance/output_all' instanceLogicalId="Instance"}}
   {{set 'm:vpc' 'security_group/output_all' securityGroupLogicalId="SecurityGroup"}}

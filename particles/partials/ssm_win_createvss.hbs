@@ -1,0 +1,71 @@
+{
+"Content":
+{
+  "schemaVersion": "1.2",
+  "description": "ESS for Windows machines - create VSS",
+  "parameters": {
+   "device":
+    {
+      "type":"String",
+      "description":"Mount point of device to be freezed",
+      "allowedPattern": "/dev/[a-z]{3,4}"
+    },
+    "timeout":
+    {
+      "type":"String",
+      "default":"120",
+      "description":"(Optional) The time in seconds for a command to be completed before it is considered to have failed. Default is 2 mins.",
+      "allowedPattern":"[1-9][0-9]{1,3}"
+    }
+  },
+  "runtimeConfig": {
+    "aws:runPowerShellScript": {
+      "properties": [
+        {
+          "id": "0.aws:runPowerShellScript",
+          "runCommand": [
+
+                "$Mydevice = \"\{{ device }}\" -replace \"/dev/\",\"\"",
+                "$Ids = \"\"",
+                "Write-Host \"My device: $Mydevice\"",
+                "$Map = @{\"0\" = '/dev/sda1'}",
+                "for($x = 1; $x -le 25; $x++) {$Map.add($x.ToString(), [String]::Format(\"xvd{0}\",[char](97 + $x)))}",
+                "for($x = 26; $x -le 51; $x++) {$Map.add($x.ToString(), [String]::Format(\"xvda{0}\",[char](71 + $x)))}",
+                "for($x = 52; $x -le 77; $x++) {$Map.add($x.ToString(), [String]::Format(\"xvdb{0}\",[char](45 + $x)))}",
+                "for($x = 78; $x -le 103; $x++) {$Map.add($x.ToString(), [String]::Format(\"xvdc{0}\",[char](19 + $x)))}",
+                "for($x = 104; $x -le 129; $x++) {$Map.add($x.ToString(), [String]::Format(\"xvdd{0}\",[char]($x - 7)))}",
+                "Get-WmiObject -Class Win32_DiskDrive | Where-Object {$Map[$_.SCSITargetId.ToString()] -eq $Mydevice} | % {",
+                "$Drive = $_",
+                "Get-WmiObject -Class Win32_DiskDriveToDiskPartition |  Where-Object {$_.Antecedent -eq $Drive.Path.Path} | %{",
+                "$D2P = $_",
+                "$Disk = Get-WmiObject -Class Win32_LogicalDiskToPartition | Where-Object {$_.Antecedent -in $D2P.Dependent} | %{",
+                "$L2P = $_",
+                "Get-WmiObject -Class Win32_LogicalDisk | Where-Object {$_.Path.Path -in $L2P.Dependent}",
+                "}",
+                "If($Disk -ne $NULL) {",
+                "New-Object PSObject -Property @{",
+                "Device = $Map[$Drive.SCSITargetId.ToString()];",
+                "DriveLetter = $Disk.DeviceID;",
+                "}",
+                "}",
+                "}",
+                "} | Sort-Object DriveLetter | % {",
+                "$DriveLetter = $_ | Select -ExpandProperty \"DriveLetter\"",
+                "Write-Host \"Performing Shadow Copy on $DriveLetter\"",
+                "$result = vssadmin create shadow /for=$DriveLetter | Select-String 'Shadow Copy ID'",
+                "if ($result -ne $NULL) {",
+                "$result = $result -replace \"Shadow Copy ID:\",\"\"",
+                "$Ids = \"$Ids $result\"",
+                "}",
+                "}",
+                "Write-Host \"SNAPSHOT_ID: $Ids\"",
+                "Write-Host \"EXIT_RESULT: Frozen\""
+
+          ],
+          "timeoutSeconds": "\{{ timeout }}"
+        }
+      ]
+    }
+  }
+}
+}
