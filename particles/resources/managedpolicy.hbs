@@ -103,6 +103,28 @@
               {"Fn::Join": [":",["arn:aws:ec2",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"instance/*"]]}
             ]
         },
+         {
+            "Action": [
+                "cloudwatch:ListMetrics",
+                "cloudwatch:PutMetricAlarm",
+                "cloudwatch:PutMetricData",
+                "cloudwatch:DescribeAlarms",
+                "cloudwatch:DeleteAlarms"
+             ],
+            "Resource": "*",
+            "Effect": "Allow"
+        },
+         {
+            "Action": [
+                "sns:ListTopics",
+                "sns:GetTopicAttributes",
+                "sns:Publish"
+             ],
+            "Resource": [
+                {"Fn::Join": [":",["arn:aws:sns",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"*"]]}
+            ],
+            "Effect": "Allow"
+        },
         {
             "Action": "s3:CreateBucket",
             "Resource": "arn:aws:s3:::com.sungardas.enhancedsnapshots*",

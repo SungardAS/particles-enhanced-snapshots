@@ -690,7 +690,9 @@
             {
               "Condition": {},
               "Action": [
-                "sns:ListTopics"
+                "sns:ListTopics",
+                "sns:GetTopicAttributes",
+                "sns:Publish"
               ],
               "Resource": [
                 {

@@ -201,7 +201,9 @@
          {
             "Condition": {},
             "Action": [
-                "sns:ListTopics"
+                "sns:ListTopics",
+                "sns:GetTopicAttributes",
+                "sns:Publish"
              ],
             "Resource": [
                 {"Fn::Join": [":",["arn:aws:sns",{"Ref": "AWS::Region"},{"Ref": "AWS::AccountId"},"*"]]}
