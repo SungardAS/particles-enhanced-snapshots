@@ -750,6 +750,29 @@
             {
               "Effect": "Allow",
               "Action": [
+                "ssm:ListDocuments"
+              ],
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    ":",
+                    [
+                      "arn:aws:ssm",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      "*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
                 "ssm:SendCommand",
                 "ssm:CancelCommand",
                 "ssm:ListCommandInvocations"
@@ -766,22 +789,7 @@
                       {
                         "Ref": "AWS::AccountId"
                       },
-                      "document/*SSMLinux*"
-                    ]
-                  ]
-                },
-                {
-                  "Fn::Join": [
-                    ":",
-                    [
-                      "arn:aws:ssm",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      {
-                        "Ref": "AWS::AccountId"
-                      },
-                      "document/*SSMWindows*"
+                      "document/*SSM*"
                     ]
                   ]
                 },
@@ -1081,7 +1089,7 @@
       "Properties": {
         "Content": {
           "schemaVersion": "1.2",
-          "description": "ESS - FS freeze",
+          "description": "ESS",
           "parameters": {
             "device": {
               "type": "String",
@@ -1153,7 +1161,7 @@
       "Properties": {
         "Content": {
           "schemaVersion": "1.2",
-          "description": "ESS - FSFreeze unfreeze",
+          "description": "ESS",
           "parameters": {
             "device": {
               "type": "String",
@@ -1195,7 +1203,7 @@
       "Properties": {
         "Content": {
           "schemaVersion": "1.2",
-          "description": "ESS - create VSS",
+          "description": "ESS",
           "parameters": {
             "device": {
               "type": "String",
@@ -1264,11 +1272,11 @@
       "Properties": {
         "Content": {
           "schemaVersion": "1.2",
-          "description": "ESS - Delete VSS",
+          "description": "ESS",
           "parameters": {
             "vssIds": {
               "type": "String",
-              "description": "Shadow copies to remove in format \"{ID} {ID} ..\"",
+              "description": "Shadow copies to remove",
               "allowedPattern": ".*"
             },
             "timeout": {
@@ -1316,7 +1324,7 @@
       "Properties": {
         "Content": {
           "schemaVersion": "1.2",
-          "description": "ESS - FSFreeze unfreeze",
+          "description": "ESS",
           "parameters": {
             "device": {
               "type": "String",
