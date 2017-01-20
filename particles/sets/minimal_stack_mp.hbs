@@ -100,6 +100,14 @@ ingressPortsSSH:
     )
   }}
 
+  {{
+    resource "m:core" "base"
+    type="AWS::SSM::Document"
+    logicalId="SSMLinuxFreezeSupport"
+    properties=(
+      partial "ssm_linux_freezesupport"
+    )
+  }}
      
   {{set 'm:ec2' 'instance/output_all' instanceLogicalId="Instance"}}
   {{set 'm:vpc' 'security_group/output_all' securityGroupLogicalId="SecurityGroup"}}

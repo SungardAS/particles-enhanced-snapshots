@@ -1,25 +1,25 @@
 {
 "Content": {
-  "schemaVersion": "1.2",
-  "description": "ESS for Linux machines - fsfreeze freeze",
+   "schemaVersion": "1.2",
+  "description": "ESS - FS freeze",
   "parameters": {
    "device":
     {
       "type":"String",
-      "description":"Mount point of device to be freezed",
+      "description":"Device to be freezed",
       "allowedPattern": "/dev/[a-z]{3,4}"
     },
    "appURL":
     {
       "type":"String",
-      "description":"URL to check the application is working correctly",
+      "description":"URL for healthcheck",
       "allowedPattern": "https://.*"
     },
    "timeout":
       {
         "type":"String",
         "default":"300",
-        "description":"(Optional) The time in seconds for a command to be completed before it is considered to have failed. Default is 2 mins.",
+        "description":"(Optional) Operation timeout",
         "allowedPattern":"[1-9][0-9]{2,3}"
       }
   },
@@ -63,10 +63,11 @@
                 ") &",
                 "echo \"EXIT_RESULT: Frozen\"",
                 "exit 0"
-          ]
+      ]
         }
       ]
     }
   }
+
 }
 }
