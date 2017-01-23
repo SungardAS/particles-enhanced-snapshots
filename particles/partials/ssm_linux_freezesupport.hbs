@@ -6,7 +6,7 @@
    "device":
     {
       "type":"String",
-      "description":"Device to be unfreezed",
+      "description":"Device to be freezed",
       "allowedPattern": "/dev/[a-z]{3,4}"
     }
   },
@@ -16,26 +16,22 @@
         {
           "id": "0.aws:runShellScript",
           "runCommand": [
-                "#!/bin/sh",
-                "DEVICE=\"\{{ device }}\"",
-                "[ -z \"$(lsblk -o NAME -rnp | grep \"${DEVICE}\")\" ] && DEVICE=$(find /dev -regex \"^${DEVICE}$\" -type l -exec realpath {} \\;)",
-                "[ -z \"${DEVICE}\" ] && echo \" EXIT_RESULT: No_Device_Found\" && exit 0 || echo \"DEVICE: ${DEVICE}\"",
-                "SUPPORTED=$(lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* (ext3|ext4|reiserfs|xfs) /.+\" | wc -l)",
-                "ALL=$(lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* .+ /.+\" | wc -l)",
-                "[ \"${SUPPORTED}\" -ne \"${ALL}\" ] && echo \"EXIT_RESULT: Unsupported_FS\" && exit 0",
-                "[ -z \"$(which fsfreeze)\" ] && echo \"EXIT_RESULT: No_FsFreeze_Tool\" && exit 0",
-                "lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* (ext3|ext4|reiserfs|xfs) /.+\"|",
-                "while read DEV NAME MOUNTPOINT; do",
-                "echo \"unfreezing ${DEV}: ${MOUNTPOINT}\" ; $(which fsfreeze) -u ${MOUNTPOINT}",
-                "if [ $? != 0 ]; then echo \"EXIT_RESULT: Failed_Unfreeze_${MOUNTPOINT}\"; exit 0; fi",
-                "done",
-                "echo \"EXIT_RESULT: Unfrozen\"",
-                "exit 0"
-          ]
+		"#!/bin/sh",
+		"DEVICE=\"\{{ device }}\"",
+		"[ -z \"$(lsblk -o NAME -rnp | grep \"${DEVICE}\")\" ] && DEVICE=$(find /dev -regex \"^${DEVICE}$\" -type l -exec realpath {} \\;)",
+		"[ -z \"${DEVICE}\" ] && echo \"No devices found\\nFREEZE_SUPPORT: false\" && exit 0 || echo \"DEVICE: ${DEVICE}\"",
+		"SUPPORTED=$(lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* (ext3|ext4|reiserfs|xfs) /.+\" | wc -l)",
+		"ALL=$(lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* .+ /.+\" | wc -l)",
+		"[ \"${SUPPORTED}\" -ne \"${ALL}\" ] && echo \"Filesystems not supported\\nFREEZE_SUPPORT: false\" && exit 0",
+		"[ -z \"$(which fsfreeze)\" ] && echo \"Tool not available\\nFREEZE_SUPPORT: false\" && exit 0",
+                "echo  \"DEVICES to freeze: \"",
+		"lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* (ext3|ext4|reiserfs|xfs) /.+\"",
+                "echo \"FREEZE_SUPPORT: true\"",
+		"exit 0"
+	  ]
         }
       ]
     }
   }
-
 }
 }
