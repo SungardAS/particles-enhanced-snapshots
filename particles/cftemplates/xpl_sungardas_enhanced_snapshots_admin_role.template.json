@@ -272,7 +272,7 @@
                       {
                         "Ref": "AWS::AccountId"
                       },
-                      "document/*SSM*"
+                      "document/*ESS*"
                     ]
                   ]
                 },
