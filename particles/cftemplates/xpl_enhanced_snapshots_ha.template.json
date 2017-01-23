@@ -1084,7 +1084,7 @@
         ]
       }
     },
-    "SSMLinuxFreeze": {
+    "ESSLinuxFreeze": {
       "Type": "AWS::SSM::Document",
       "Properties": {
         "Content": {
@@ -1156,7 +1156,7 @@
         }
       }
     },
-    "SSMLinuxUnFreeze": {
+    "ESSLinuxUnFreeze": {
       "Type": "AWS::SSM::Document",
       "Properties": {
         "Content": {
@@ -1198,7 +1198,7 @@
         }
       }
     },
-    "SSMWindowsCreateVSS": {
+    "ESSWindowsCreateVSS": {
       "Type": "AWS::SSM::Document",
       "Properties": {
         "Content": {
@@ -1267,7 +1267,7 @@
         }
       }
     },
-    "SSMWindowsDeleteVSS": {
+    "ESSWindowsDeleteVSS": {
       "Type": "AWS::SSM::Document",
       "Properties": {
         "Content": {
@@ -1319,7 +1319,7 @@
         }
       }
     },
-    "SSMLinuxFreezeSupport": {
+    "ESSLinuxFreezeSupport": {
       "Type": "AWS::SSM::Document",
       "Properties": {
         "Content": {

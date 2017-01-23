@@ -67,7 +67,7 @@ ingressPortsSSH:
   {{
     resource "m:core" "base"
     type="AWS::SSM::Document"
-    logicalId="SSMLinuxFreeze"
+    logicalId="ESSLinuxFreeze"
     properties=(
       partial "ssm_linux_freeze"
     )
@@ -76,7 +76,7 @@ ingressPortsSSH:
   {{
     resource "m:core" "base"
     type="AWS::SSM::Document"
-    logicalId="SSMLinuxUnFreeze"
+    logicalId="ESSLinuxUnFreeze"
     properties=(
       partial "ssm_linux_unfreeze"
     )
@@ -85,7 +85,7 @@ ingressPortsSSH:
   {{
     resource "m:core" "base"
     type="AWS::SSM::Document"
-    logicalId="SSMWindowsCreateVSS"
+    logicalId="ESSWindowsCreateVSS"
     properties=(
       partial "ssm_win_createvss"
     )
@@ -94,7 +94,7 @@ ingressPortsSSH:
   {{
     resource "m:core" "base"
     type="AWS::SSM::Document"
-    logicalId="SSMWindowsDeleteVSS"
+    logicalId="ESSWindowsDeleteVSS"
     properties=(
       partial "ssm_win_deletevss"
     )
@@ -103,7 +103,7 @@ ingressPortsSSH:
   {{
     resource "m:core" "base"
     type="AWS::SSM::Document"
-    logicalId="SSMLinuxFreezeSupport"
+    logicalId="ESSLinuxFreezeSupport"
     properties=(
       partial "ssm_linux_freezesupport"
     )
