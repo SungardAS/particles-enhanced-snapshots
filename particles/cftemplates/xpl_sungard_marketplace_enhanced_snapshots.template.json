@@ -20,9 +20,6 @@
       "us-east-1": {
         "ImageID": "ami-3f618429"
       },
-      "us-east-2": {
-        "ImageID": "ami-2ee6bc4b"
-      },
       "us-west-1": {
         "ImageID": "ami-6fa7f70f"
       },
@@ -972,6 +969,14 @@
                 "env": {
                   "UUID": {
                     "Ref": "UUID"
+                  }
+                }
+              },
+              "003": {
+                "command": "sed -i \"/export PATH/i export STACK_NAME=\"$STACK_NAME\" \" /etc/init.d/tomcat8 ",
+                "env": {
+                  "STACK_NAME": {
+                    "Ref": "AWS::StackName"
                   }
                 }
               }

@@ -6,9 +6,6 @@
       "us-east-1": {
         "ImageID": "ami-3f618429"
       },
-      "us-east-2": {
-        "ImageID": "ami-2ee6bc4b"
-      },
       "us-west-1": {
         "ImageID": "ami-6fa7f70f"
       },
