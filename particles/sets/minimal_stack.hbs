@@ -122,6 +122,15 @@ ingressPortsSSH:
       partial "ssm_linux_freezesupport"
     )
   }}
+
+  {{
+    resource "m:core" "base"
+    type="AWS::SSM::Document"
+    logicalId="ESSCheckApp"
+    properties=(
+      partial "ssm_check_app"
+    )
+  }}
      
   {{set 'm:ec2' 'instance/output_all' instanceLogicalId="Instance"}}
   {{set 'm:vpc' 'security_group/output_all' securityGroupLogicalId="SecurityGroup"}}

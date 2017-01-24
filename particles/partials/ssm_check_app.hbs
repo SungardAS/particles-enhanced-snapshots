@@ -1,0 +1,37 @@
+{
+"Content": {
+ "schemaVersion": "1.2",
+  "description": "ESS",
+  "parameters": {
+   "appUrl":
+    {
+      "type":"String",
+      "description":"App URL",
+      "default": "https://localhost"
+    }
+  },
+  "runtimeConfig": {
+    "aws:runShellScript": {
+      "properties": [
+        {
+          "id": "0.aws:runShellScript",
+          "runCommand": [
+                "#!/bin/sh",
+                "APPURL=\"\{{ appUrl }}\"",
+                "check=$(curl -k -s -o /dev/null -w \"%{http_code}\" ${APPURL})",
+                "sleep 5",
+                "check=$(curl -k -s -o /dev/null -w \"%{http_code}\" ${APPURL})",
+                "if [ \"${check}\" != \"200\" ] && [ \"${check2}\" != \"200\" ]; then",
+                "echo \"EXIT_RESULT: Error\"",
+                "else",
+                "echo \"EXIT_RESULT: Success\"",
+                "fi",
+                "exit 0"
+          ]
+        }
+      ]
+    }
+  }
+
+}
+}

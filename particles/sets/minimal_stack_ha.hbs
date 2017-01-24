@@ -41,6 +41,15 @@ healthCheck:
     constraintDescription="must be a valid CIDR range formatted as x.x.x.x/x"
   }}
 
+  {{parameter "m:core" "base"
+    type="String"
+    logicalId="TemplateUrl"
+    allowedPattern="https?://[a-z0-9]+"
+    maxLength="100"
+    minLength="10"
+    description="The nested stack template URL for SSM documents"
+    constraintDescription="must be a valid HTTP/HTTPS URL format https://s3.amazonaws.com/.../TemplateName.template"
+  }}
 
   {{#each publicSubnet}}
     {{
@@ -191,47 +200,10 @@ healthCheck:
   }}
 
   {{
-    resource "m:core" "base"
-    type="AWS::SSM::Document"
-    logicalId="ESSLinuxFreeze"
-    properties=(
-      partial "ssm_linux_freeze"
-    )
+    resource "stack"
+    logicalId="ESS"
+    templateUrl=(ref "TemplateUrl")
   }}
 
-  {{
-    resource "m:core" "base"
-    type="AWS::SSM::Document"
-    logicalId="ESSLinuxUnFreeze"
-    properties=(
-      partial "ssm_linux_unfreeze"
-    )
-  }}
-
-  {{
-    resource "m:core" "base"
-    type="AWS::SSM::Document"
-    logicalId="ESSWindowsCreateVSS"
-    properties=(
-      partial "ssm_win_createvss"
-    )
-  }}
-
-  {{
-    resource "m:core" "base"
-    type="AWS::SSM::Document"
-    logicalId="ESSWindowsDeleteVSS"
-    properties=(
-      partial "ssm_win_deletevss"
-    )
-  }}
-
-  {{
-    resource "m:core" "base"
-    type="AWS::SSM::Document"
-    logicalId="ESSLinuxFreezeSupport"
-    properties=(
-      partial "ssm_linux_freezesupport"
-    )
-  }}
-
+ {{set 'm:vpc' 'security_group/output_all' securityGroupLogicalId="SecurityGroup"}}
+ {{set 'm:ec2' 'load_balancer/output_all'  loadBalancerLogicalId="ElasticLoadBalancer"}}
