@@ -264,7 +264,8 @@
                 "ssm:ListAssociations",
                 "ssm:UpdateAssociationStatus",
                 "ssm:UpdateInstanceInformation",
-                "ssm:ListInstanceAssociations"
+                "ssm:ListInstanceAssociations",
+                "ssm:DescribeInstanceInformation"
               ],
               "Resource": [
                 {
