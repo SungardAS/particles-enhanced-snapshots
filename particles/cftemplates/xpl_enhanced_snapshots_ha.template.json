@@ -826,7 +826,8 @@
             {
               "Effect": "Allow",
               "Action": [
-                "ssm:ListDocuments"
+                "ssm:ListDocuments",
+                "ssm:DescribeInstanceInformation"
               ],
               "Resource": [
                 {
@@ -857,8 +858,7 @@
                 "ssm:ListAssociations",
                 "ssm:UpdateAssociationStatus",
                 "ssm:UpdateInstanceInformation",
-                "ssm:ListInstanceAssociations",
-                "ssm:DescribeInstanceInformation"
+                "ssm:ListInstanceAssociations"
               ],
               "Resource": [
                 {
