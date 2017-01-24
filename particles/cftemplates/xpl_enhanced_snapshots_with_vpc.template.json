@@ -740,7 +740,12 @@
             },
             "documentName": {
               "type": "String",
-              "description": "Name of the document for helathcheck"
+              "description": "Name of the document for healthcheck"
+            },
+            "appUrl": {
+              "type": "String",
+              "description": "URL for healthcheck",
+              "allowedPattern": "https://.*"
             },
             "timeout": {
               "type": "String",
@@ -761,6 +766,7 @@
                     "REGION=\"{{ region }}\"",
                     "DOCUMENTNAME=\"{{ documentName }}\"",
                     "TIMEOUT=\"{{ timeout }}\"",
+                    "APPURL=\"{{ appUrl }}\"",
                     "[ -z \"$(lsblk -o NAME -rnp | grep \"${DEVICE}\")\" ] && DEVICE=$(find /dev -regex \"^${DEVICE}$\" -type l -exec realpath {} \\;)",
                     "[ -z \"${DEVICE}\" ] && echo \" EXIT_RESULT: No_Device_Found\" && exit 0 || echo \"DEVICE: ${DEVICE}\"",
                     "SUPPORTED=$(lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* (ext3|ext4|reiserfs|xfs) /.+\" | wc -l)",
