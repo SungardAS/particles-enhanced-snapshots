@@ -19,7 +19,7 @@
                 "#!/bin/sh",
                 "APPURL=\"\{{ appUrl }}\"",
                 "check=$(curl -k -s -o /dev/null -w \"%{http_code}\" ${APPURL})",
-                "sleep 5",
+                "sleep 3",
                 "check=$(curl -k -s -o /dev/null -w \"%{http_code}\" ${APPURL})",
                 "if [ \"${check}\" != \"200\" ] && [ \"${check2}\" != \"200\" ]; then",
                 "echo \"EXIT_RESULT: Error\"",
@@ -27,7 +27,8 @@
                 "echo \"EXIT_RESULT: Success\"",
                 "fi",
                 "exit 0"
-          ]
+          ],
+        "timeoutSeconds": "10"
         }
       ]
     }

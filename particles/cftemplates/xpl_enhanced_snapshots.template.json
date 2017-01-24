@@ -768,7 +768,7 @@
                     "fi",
                     "else",
                     "COMMANDID=$(aws ssm send-command --document-name \"${DOCUMENTNAME}\" --instance-ids \"${INSTANCEID}\" --region \"${REGION}\" --output text | head -n1 | awk {'print $2'})",
-                    "sleep 10",
+                    "sleep 15",
                     "RES=\"\"",
                     "if [ ! -z \"${COMMANDID}\" ]; then",
                     "if ! aws ssm list-command-invocations --command-id \"${COMMANDID}\" --details --output text | grep \"EXIT_RESULT: Success\"; then",
@@ -1014,7 +1014,7 @@
                     "#!/bin/sh",
                     "APPURL=\"{{ appUrl }}\"",
                     "check=$(curl -k -s -o /dev/null -w \"%{http_code}\" ${APPURL})",
-                    "sleep 5",
+                    "sleep 3",
                     "check=$(curl -k -s -o /dev/null -w \"%{http_code}\" ${APPURL})",
                     "if [ \"${check}\" != \"200\" ] && [ \"${check2}\" != \"200\" ]; then",
                     "echo \"EXIT_RESULT: Error\"",
@@ -1022,7 +1022,8 @@
                     "echo \"EXIT_RESULT: Success\"",
                     "fi",
                     "exit 0"
-                  ]
+                  ],
+                  "timeoutSeconds": "10"
                 }
               ]
             }

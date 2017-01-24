@@ -82,7 +82,7 @@
                 "fi",
                 "else",
                 "COMMANDID=$(aws ssm send-command --document-name \"${DOCUMENTNAME}\" --instance-ids \"${INSTANCEID}\" --region \"${REGION}\" --output text | head -n1 | awk {'print $2'})",
-                "sleep 10",
+                "sleep 15",
                 "RES=\"\"",
                 "if [ ! -z \"${COMMANDID}\" ]; then",
                 "if ! aws ssm list-command-invocations --command-id \"${COMMANDID}\" --details --output text | grep \"EXIT_RESULT: Success\"; then",
