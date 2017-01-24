@@ -3,7 +3,7 @@
  "schemaVersion": "1.2",
   "description": "ESS",
   "parameters": {
-   "appUrl":
+   "appURL":
     {
       "type":"String",
       "description":"App URL",
@@ -17,7 +17,7 @@
           "id": "0.aws:runShellScript",
           "runCommand": [
                 "#!/bin/sh",
-                "APPURL=\"\{{ appUrl }}\"",
+                "APPURL=\"\{{ appURL }}\"",
                 "check=$(curl -k -s -o /dev/null -w \"%{http_code}\" ${APPURL})",
                 "sleep 3",
                 "check=$(curl -k -s -o /dev/null -w \"%{http_code}\" ${APPURL})",

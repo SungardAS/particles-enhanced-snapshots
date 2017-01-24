@@ -536,7 +536,9 @@
               "Effect": "Allow",
               "Action": [
                 "ssm:ListDocuments",
-                "ssm:DescribeInstanceInformation"
+                "ssm:DescribeInstanceInformation",
+                "ssm:GetCommandInvocation",
+                "ssm:ListCommandInvocations"
               ],
               "Resource": [
                 {
@@ -561,7 +563,6 @@
               "Action": [
                 "ssm:SendCommand",
                 "ssm:CancelCommand",
-                "ssm:ListCommandInvocations",
                 "ssm:DescribeAssociation",
                 "ssm:GetDocument",
                 "ssm:ListAssociations",
@@ -743,7 +744,7 @@
               "type": "String",
               "description": "Name of the document for healthcheck"
             },
-            "appUrl": {
+            "appURL": {
               "type": "String",
               "description": "URL for healthcheck",
               "allowedPattern": "https://.*"
@@ -767,7 +768,7 @@
                     "REGION=\"{{ region }}\"",
                     "DOCUMENTNAME=\"{{ documentName }}\"",
                     "TIMEOUT=\"{{ timeout }}\"",
-                    "APPURL=\"{{ appUrl }}\"",
+                    "APPURL=\"{{ appURL }}\"",
                     "[ -z \"$(lsblk -o NAME -rnp | grep \"${DEVICE}\")\" ] && DEVICE=$(find /dev -regex \"^${DEVICE}$\" -type l -exec realpath {} \\;)",
                     "[ -z \"${DEVICE}\" ] && echo \" EXIT_RESULT: No_Device_Found\" && exit 0 || echo \"DEVICE: ${DEVICE}\"",
                     "SUPPORTED=$(lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* (ext3|ext4|reiserfs|xfs) /.+\" | wc -l)",
@@ -1029,7 +1030,7 @@
           "schemaVersion": "1.2",
           "description": "ESS",
           "parameters": {
-            "appUrl": {
+            "appURL": {
               "type": "String",
               "description": "App URL",
               "default": "https://localhost"
@@ -1042,7 +1043,7 @@
                   "id": "0.aws:runShellScript",
                   "runCommand": [
                     "#!/bin/sh",
-                    "APPURL=\"{{ appUrl }}\"",
+                    "APPURL=\"{{ appURL }}\"",
                     "check=$(curl -k -s -o /dev/null -w \"%{http_code}\" ${APPURL})",
                     "sleep 3",
                     "check=$(curl -k -s -o /dev/null -w \"%{http_code}\" ${APPURL})",

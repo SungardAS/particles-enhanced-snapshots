@@ -234,7 +234,9 @@
               "Effect": "Allow",
               "Action": [
                 "ssm:ListDocuments",
-                "ssm:DescribeInstanceInformation"
+                "ssm:DescribeInstanceInformation",
+                "ssm:GetCommandInvocation",
+                "ssm:ListCommandInvocations"
               ],
               "Resource": [
                 {
@@ -259,7 +261,6 @@
               "Action": [
                 "ssm:SendCommand",
                 "ssm:CancelCommand",
-                "ssm:ListCommandInvocations",
                 "ssm:DescribeAssociation",
                 "ssm:GetDocument",
                 "ssm:ListAssociations",
