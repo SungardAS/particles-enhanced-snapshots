@@ -258,7 +258,13 @@
               "Action": [
                 "ssm:SendCommand",
                 "ssm:CancelCommand",
-                "ssm:ListCommandInvocations"
+                "ssm:ListCommandInvocations",
+                "ssm:DescribeAssociation",
+                "ssm:GetDocument",
+                "ssm:ListAssociations",
+                "ssm:UpdateAssociationStatus",
+                "ssm:UpdateInstanceInformation",
+                "ssm:ListInstanceAssociations"
               ],
               "Resource": [
                 {
@@ -292,6 +298,18 @@
                   ]
                 }
               ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "ec2messages:AcknowledgeMessage",
+                "ec2messages:DeleteMessage",
+                "ec2messages:FailMessage",
+                "ec2messages:GetEndpoint",
+                "ec2messages:GetMessages",
+                "ec2messages:SendReply"
+              ],
+              "Resource": "*"
             },
             {
               "Action": [
