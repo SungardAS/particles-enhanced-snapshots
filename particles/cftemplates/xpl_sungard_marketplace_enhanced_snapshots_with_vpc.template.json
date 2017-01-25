@@ -744,6 +744,7 @@
                     "DOCUMENTNAME=\"{{ documentName }}\"",
                     "TIMEOUT=\"{{ timeout }}\"",
                     "APPURL=\"{{ appURL }}\"",
+                    "rm /tmp/var 2>/dev/null",
                     "[ -z \"$(lsblk -o NAME -rnp | grep \"${DEVICE}\")\" ] && DEVICE=$(find /dev -regex \"^${DEVICE}$\" -type l -exec realpath {} \\;)",
                     "[ -z \"${DEVICE}\" ] && echo \" EXIT_RESULT: No_Device_Found\" && exit 0 || echo \"DEVICE: ${DEVICE}\"",
                     "SUPPORTED=$(lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* (ext3|ext4|reiserfs|xfs) /.+\" | wc -l)",
@@ -777,7 +778,7 @@
                     "sleep 15",
                     "RES=\"\"",
                     "if [ ! -z \"${COMMANDID}\" ]; then",
-                    "if ! aws ssm list-command-invocations --command-id \"${COMMANDID}\" --details --output text | grep \"EXIT_RESULT: Success\"; then",
+                    "if ! aws ssm list-command-invocations --command-id \"${COMMANDID}\" --region \"${REGION}\" --details --output text | grep \"EXIT_RESULT: Success\"; then",
                     "for MP in $(cat /tmp/var); do $(which fsfreeze) -u ${MP}; done",
                     "fi",
                     "else",
@@ -827,7 +828,7 @@
                     "echo \"unfreezing ${DEV}: ${MOUNTPOINT}\" ; $(which fsfreeze) -u ${MOUNTPOINT}",
                     "if [ $? != 0 ]; then echo \"EXIT_RESULT: Failed_Unfreeze_${MOUNTPOINT}\"; exit 0; fi",
                     "done",
-                    "rm -f /tmp/var",
+                    "rm -f /tmp/var 2>/dev/null",
                     "echo \"EXIT_RESULT: Unfrozen\"",
                     "exit 0"
                   ]

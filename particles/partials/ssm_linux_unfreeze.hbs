@@ -29,7 +29,7 @@
                 "echo \"unfreezing ${DEV}: ${MOUNTPOINT}\" ; $(which fsfreeze) -u ${MOUNTPOINT}",
                 "if [ $? != 0 ]; then echo \"EXIT_RESULT: Failed_Unfreeze_${MOUNTPOINT}\"; exit 0; fi",
                 "done",
-                "rm -f /tmp/var",
+                "rm -f /tmp/var 2>/dev/null",
                 "echo \"EXIT_RESULT: Unfrozen\"",
                 "exit 0"
           ]
