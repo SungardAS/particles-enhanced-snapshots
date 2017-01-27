@@ -1,0 +1,53 @@
+{
+"Content": {
+   "schemaVersion": "1.2",
+  "description": "ESS",
+  "parameters": {
+   "vssIds":
+    {
+      "type":"String",
+      "description":"Shadow copies to remove",
+      "allowedPattern": ".*"
+    },
+    "timeout":
+    {
+      "type":"String",
+      "default":"60",
+      "description":"(Optional) Operation timeout",
+      "allowedPattern":"[1-9][0-9]{1,3}"
+    }
+  },
+  "runtimeConfig": {
+    "aws:runPowerShellScript": {
+      "properties": [
+        {
+          "id": "0.aws:runPowerShellScript",
+          "runCommand": [
+                "$Ids=\"\{{ vssIds }}\"",
+                "$Array = [string[]]$Ids.Split()",
+                "Get-WmiObject Win32_Shadowcopy | % {",
+                "Write-Host \"Checking \"$_.ID",
+                "if ($Array -contains $_.ID) {",
+                "Write-Host \"Found \"$_.ID",
+                "try {",
+                "$_.Delete()",
+                "}",
+                "Catch {",
+                "Write-Host \"Error occured while removing\"",
+                "}",
+                "Finally{",
+                "Write-Host \"Item removed\"",
+                "}",
+                "}",
+                "}",
+                "Write-Host \"EXIT_RESULT: Success\""
+          ],
+          "timeoutSeconds": "\{{ timeout }}"
+        }
+      ]
+    }
+  }
+
+}
+
+}

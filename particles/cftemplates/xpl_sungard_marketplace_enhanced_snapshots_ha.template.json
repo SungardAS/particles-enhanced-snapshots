@@ -6,9 +6,6 @@
       "us-east-1": {
         "ImageID": "ami-3f618429"
       },
-      "us-east-2": {
-        "ImageID": "ami-2ee6bc4b"
-      },
       "us-west-1": {
         "ImageID": "ami-6fa7f70f"
       },
@@ -242,6 +239,14 @@
       "MinLength": "9",
       "Description": "VPC CIDR (use the choosen below)",
       "ConstraintDescription": "must be a valid CIDR range formatted as x.x.x.x/x"
+    },
+    "TemplateUrl": {
+      "Type": "String",
+      "AllowedPattern": "https?://[a-z0-9]+",
+      "MaxLength": "100",
+      "MinLength": "10",
+      "Description": "The nested stack template URL for SSM documents",
+      "ConstraintDescription": "must be a valid HTTP/HTTPS URL format https://s3.amazonaws.com/.../TemplateName.template"
     },
     "PublicSubnet1": {
       "Type": "AWS::EC2::Subnet::Id",
@@ -736,7 +741,9 @@
             {
               "Condition": {},
               "Action": [
-                "sns:ListTopics"
+                "sns:ListTopics",
+                "sns:GetTopicAttributes",
+                "sns:Publish"
               ],
               "Resource": [
                 {
@@ -790,6 +797,89 @@
                 }
               ],
               "Effect": "Allow"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "ssm:ListDocuments",
+                "ssm:DescribeInstanceInformation",
+                "ssm:GetCommandInvocation",
+                "ssm:ListCommandInvocations"
+              ],
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    ":",
+                    [
+                      "arn:aws:ssm",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      "*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "ssm:SendCommand",
+                "ssm:CancelCommand",
+                "ssm:DescribeAssociation",
+                "ssm:GetDocument",
+                "ssm:ListAssociations",
+                "ssm:UpdateAssociationStatus",
+                "ssm:UpdateInstanceInformation",
+                "ssm:ListInstanceAssociations"
+              ],
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    ":",
+                    [
+                      "arn:aws:ssm",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      "document/*ESS*"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    ":",
+                    [
+                      "arn:aws:ec2",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      "instance/*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "ec2messages:AcknowledgeMessage",
+                "ec2messages:DeleteMessage",
+                "ec2messages:FailMessage",
+                "ec2messages:GetEndpoint",
+                "ec2messages:GetMessages",
+                "ec2messages:SendReply"
+              ],
+              "Resource": "*"
             },
             {
               "Action": "s3:CreateBucket",
@@ -1057,6 +1147,14 @@
             "Ref": "PublicSubnet2"
           }
         ]
+      }
+    },
+    "ESS": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": {
+          "Ref": "TemplateUrl"
+        }
       }
     },
     "SecurityGroup": {

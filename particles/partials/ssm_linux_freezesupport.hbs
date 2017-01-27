@@ -1,0 +1,37 @@
+{
+"Content": {
+  "schemaVersion": "1.2",
+  "description": "ESS",
+  "parameters": {
+   "device":
+    {
+      "type":"String",
+      "description":"Device to be freezed",
+      "allowedPattern": "/dev/[a-z]{3,4}"
+    }
+  },
+  "runtimeConfig": {
+    "aws:runShellScript": {
+      "properties": [
+        {
+          "id": "0.aws:runShellScript",
+          "runCommand": [
+		"#!/bin/sh",
+		"DEVICE=\"\{{ device }}\"",
+		"[ -z \"$(lsblk -o NAME -rnp | grep \"${DEVICE}\")\" ] && DEVICE=$(find /dev -regex \"^${DEVICE}$\" -type l -exec realpath {} \\;)",
+		"[ -z \"${DEVICE}\" ] && echo \"No devices found\\nFREEZE_SUPPORT: false\" && exit 0 || echo \"DEVICE: ${DEVICE}\"",
+		"SUPPORTED=$(lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* (ext3|ext4|reiserfs|xfs) /.+\" | wc -l)",
+		"ALL=$(lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* .+ /.+\" | wc -l)",
+		"[ \"${SUPPORTED}\" -ne \"${ALL}\" ] && echo \"Filesystems not supported\\nFREEZE_SUPPORT: false\" && exit 0",
+		"[ -z \"$(which fsfreeze)\" ] && echo \"Tool not available\\nFREEZE_SUPPORT: false\" && exit 0",
+                "echo  \"DEVICES to freeze: \"",
+		"lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* (ext3|ext4|reiserfs|xfs) /.+\"",
+                "echo \"FREEZE_SUPPORT: true\"",
+		"exit 0"
+	  ]
+        }
+      ]
+    }
+  }
+}
+}

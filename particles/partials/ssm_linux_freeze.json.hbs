@@ -1,0 +1,106 @@
+{
+"Content": {
+   "schemaVersion": "1.2",
+  "description": "ESS",
+  "parameters": {
+   "device":
+    {
+      "type":"String",
+      "description":"Device to be freezed",
+      "allowedPattern": "/dev/[a-z]{3,4}"
+    },
+    "instanceId":
+    {
+      "type":"String",
+      "description":"InstanceId for healthcheck",
+      "allowedPattern": "i-[a-z0-9]{17}"
+    },
+   "region":
+   {
+      "type":"String",
+      "description":"Region for instanceId"
+   },
+   "documentName":
+   {
+        "type":"String",
+        "description":"Name of the document for healthcheck"
+   },
+   "appURL":
+   {
+        "type": "String",
+        "description": "URL for healthcheck",
+        "allowedPattern": "https://.*"
+   },
+   "timeout":
+      {
+        "type":"String",
+        "default":"300",
+        "description":"(Optional) Operation timeout",
+        "allowedPattern":"[1-9][0-9]{2,3}"
+      }
+  },
+  "runtimeConfig": {
+    "aws:runShellScript": {
+      "properties": [
+        {
+          "id": "0.aws:runShellScript",
+          "runCommand": [
+                "#!/bin/sh",
+                "DEVICE=\"\{{ device }}\"",
+                "INSTANCEID=\"\{{ instanceId }}\"",
+                "REGION=\"\{{ region }}\"",
+                "DOCUMENTNAME=\"\{{ documentName }}\"",
+                "TIMEOUT=\"\{{ timeout }}\"",
+                "APPURL=\"\{{ appURL }}\"",
+                "rm /tmp/var 2>/dev/null",
+                "[ -z \"$(lsblk -o NAME -rnp | grep \"${DEVICE}\")\" ] && DEVICE=$(find /dev -regex \"^${DEVICE}$\" -type l -exec realpath {} \\;)",
+                "[ -z \"${DEVICE}\" ] && echo \" EXIT_RESULT: No_Device_Found\" && exit 0 || echo \"DEVICE: ${DEVICE}\"",
+                "SUPPORTED=$(lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* (ext3|ext4|reiserfs|xfs) /.+\" | wc -l)",
+                "ALL=$(lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* .+ /.+\" | wc -l)",
+                "[ \"${SUPPORTED}\" -ne \"${ALL}\" ] && echo \"EXIT_RESULT: Unsupported_FS\" && exit 0",
+                "[ -z \"$(which fsfreeze)\" ] && echo \"EXIT_RESULT: No_FsFreeze_Tool\" && exit 0",
+                "lsblk -o NAME,FSTYPE,MOUNTPOINT -rnp | grep -E \"${DEVICE}[0-9]* (ext3|ext4|reiserfs|xfs) /.+\"|",
+                "while read DEV NAME MOUNTPOINT; do",
+                "echo \"freezing ${DEV}: ${MOUNTPOINT}\" ; $(which fsfreeze) -f ${MOUNTPOINT}",
+                "if [ $? != 0 ]; then echo \"EXIT_RESULT: Fsfreeze_failed_${MOUNTPOINT}\"; else",
+                "MPS=\"$MPS $MOUNTPOINT\" ; echo ${MPS} > /tmp/var",
+                "fi",
+                "done",
+                "(",
+                "sleep $TIMEOUT",
+                "[ ! -f /tmp/var ] && exit 0",
+                "if [ -z \"$(which aws)\" ]; then",
+                "check=$(curl -k -s -o /dev/null -w \"%{http_code}\" ${APPURL})",
+                "sleep 5",
+                "check=$(curl -k -s -o /dev/null -w \"%{http_code}\" ${APPURL})",
+                "if [ \"${check}\" != \"200\" ] && [ \"${check2}\" != \"200\" ]; then",
+                "sleep 5",
+                "check3=$(curl -k -s -o /dev/null -w \"%{http_code}\" ${APPURL})",
+                "if [ \"${check3}\" -ne \"200\" ]; then",
+                "for MP in $(cat /tmp/var); do $(which fsfreeze) -u ${MP}; done",
+                "exit 0",
+                "fi",
+                "fi",
+                "else",
+                "COMMANDID=$(aws ssm send-command --document-name \"${DOCUMENTNAME}\" --instance-ids \"${INSTANCEID}\" --region \"${REGION}\" --output text | head -n1 | awk {'print $2'})",
+                "sleep 15",
+                "RES=\"\"",
+                "if [ ! -z \"${COMMANDID}\" ]; then",
+                "if ! aws ssm list-command-invocations --command-id \"${COMMANDID}\" --region \"${REGION}\" --details --output text | grep \"EXIT_RESULT: Success\"; then",
+                "for MP in $(cat /tmp/var); do $(which fsfreeze) -u ${MP}; done",
+                "fi",
+                "else",
+                "for MP in $(cat /tmp/var); do $(which fsfreeze) -u ${MP}; done",
+                "fi",
+                "fi",
+                ") &",
+                "echo \"EXIT_RESULT: Frozen\"",
+                "exit 0"
+      ]
+        }
+      ]
+    }
+  }
+
+}
+}

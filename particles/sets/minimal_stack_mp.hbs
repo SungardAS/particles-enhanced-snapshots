@@ -63,6 +63,61 @@ ingressPortsSSH:
       )
     }}
   {{/each}}
+
+  {{
+    resource "m:core" "base"
+    type="AWS::SSM::Document"
+    logicalId="ESSLinuxFreeze"
+    properties=(
+      partial "ssm_linux_freeze"
+    )
+  }}
+
+  {{
+    resource "m:core" "base"
+    type="AWS::SSM::Document"
+    logicalId="ESSLinuxUnFreeze"
+    properties=(
+      partial "ssm_linux_unfreeze"
+    )
+  }}
+
+  {{
+    resource "m:core" "base"
+    type="AWS::SSM::Document"
+    logicalId="ESSWindowsCreateVSS"
+    properties=(
+      partial "ssm_win_createvss"
+    )
+  }}
+
+  {{
+    resource "m:core" "base"
+    type="AWS::SSM::Document"
+    logicalId="ESSWindowsDeleteVSS"
+    properties=(
+      partial "ssm_win_deletevss"
+    )
+  }}
+
+  {{
+    resource "m:core" "base"
+    type="AWS::SSM::Document"
+    logicalId="ESSLinuxFreezeSupport"
+    properties=(
+      partial "ssm_linux_freezesupport"
+    )
+  }}
+
+  {{
+    resource "m:core" "base"
+    type="AWS::SSM::Document"
+    logicalId="ESSCheckApp"
+    properties=(
+      partial "ssm_check_app"
+    )
+  }}
+
      
   {{set 'm:ec2' 'instance/output_all' instanceLogicalId="Instance"}}
   {{set 'm:vpc' 'security_group/output_all' securityGroupLogicalId="SecurityGroup"}}

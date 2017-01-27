@@ -21,6 +21,10 @@
           "002": {
             "command": "sed -i \"/export PATH/i export UUID=\"$UUID\" \" /etc/init.d/tomcat8 ",
             "env": { "UUID" : {"Ref": "UUID"} }
+          },
+          "003": {
+             "command": "sed -i \"/export PATH/i export STACK_NAME=\"$STACK_NAME\" \" /etc/init.d/tomcat8 ",
+             "env": { "STACK_NAME" : { "Ref": "AWS::StackName"} }
           }
         }
       },

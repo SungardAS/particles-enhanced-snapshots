@@ -36,7 +36,7 @@
     "s3"
   ],
   "dependencies": {
-    "condensation": "^0.5.6",
+    "condensation": "^0.6.3",
     "config": "^1.20.1",
     "git-rev-sync": "^1.6.0",
     "gulp": "^3.9.1",
